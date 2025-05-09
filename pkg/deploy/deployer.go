@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -111,7 +110,7 @@ func loadValues(filename string) (map[string]interface{}, error) {
 		return map[string]interface{}{}, nil
 	}
 
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read values file: %w", err)
 	}

@@ -74,17 +74,18 @@ func PullImage(imageName string, outputDir string) (*ImageInfo, error) {
 // LoadImage loads an image from a tar file into a registry
 func LoadImage(imagePath string, registryHost string) error {
 	// Load the image from the tar file
-	tag, img, err := tarball.LoadFromFile(imagePath)
+	img, err := tarball.ImageFromPath(imagePath, nil)
 	if err != nil {
 		return fmt.Errorf("failed to load image from %s: %w", imagePath, err)
 	}
 
-	// Create a new reference for the target registry
-	imageName := tag.Name()
-	parts := strings.Split(imageName, "/")
-	baseName := parts[len(parts)-1]
+	// Extract the original tag from the tar filename
+	basename := filepath.Base(imagePath)
+	basename = strings.TrimSuffix(basename, ".tar")
 	
-	newRef, err := name.NewTag(fmt.Sprintf("%s/%s", registryHost, baseName))
+	// Create a tag for the target registry
+	tagName := fmt.Sprintf("%s/%s", registryHost, basename)
+	newRef, err := name.NewTag(tagName)
 	if err != nil {
 		return fmt.Errorf("failed to create new tag: %w", err)
 	}

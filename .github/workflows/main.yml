@@ -34,7 +34,7 @@ jobs:
       run: go test -v ./...
 
     - name: Upload binary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: capsailer-linux-amd64
         path: capsailer
@@ -186,17 +186,8 @@ jobs:
 
     - name: Run golangci-lint
       run: |
-        # Run with increased timeout, limited concurrency, and only essential linters
-        golangci-lint run ./... --timeout=5m --concurrency=2 \
-          --disable-all \
-          --enable=deadcode \
-          --enable=errcheck \
-          --enable=gosimple \
-          --enable=govet \
-          --enable=ineffassign \
-          --enable=staticcheck \
-          --enable=typecheck \
-          --enable=unused
+        # Use configuration file for linting
+        golangci-lint run ./... -c .golangci.yml
 
   release:
     name: Release Binaries
@@ -245,7 +236,7 @@ jobs:
           go build -v -o ${{ matrix.binary_name }} cmd/capsailer/main.go cmd/capsailer/commands.go
       
       - name: Upload Binary Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
           path: ${{ matrix.binary_name }}
@@ -272,7 +263,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Download All Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       
       - name: List Files
         run: find . -type f | sort
