@@ -5,7 +5,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 
+	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
@@ -93,8 +95,36 @@ func LoadChart(chartPath string) (*chart.Chart, error) {
 
 // InstallChart installs a Helm chart in Kubernetes
 func InstallChart(chartPath, releaseName, namespace string, values map[string]interface{}) error {
-	// This is a placeholder that will be implemented later
-	// It would use the Helm SDK to install a chart in the Kubernetes cluster
-	
-	return fmt.Errorf("not implemented yet")
+	// Load the chart
+	chartRequested, err := loader.Load(chartPath)
+	if err != nil {
+		return fmt.Errorf("failed to load chart from %s: %w", chartPath, err)
+	}
+
+	// Get Helm settings
+	settings := cli.New()
+
+	// Initialize action configuration
+	actionConfig := new(action.Configuration)
+	if err := actionConfig.Init(settings.RESTClientGetter(), namespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
+		fmt.Printf(format, v...)
+	}); err != nil {
+		return fmt.Errorf("failed to initialize Helm configuration: %w", err)
+	}
+
+	// Create install action
+	installer := action.NewInstall(actionConfig)
+	installer.Namespace = namespace
+	installer.ReleaseName = releaseName
+	installer.CreateNamespace = true
+	installer.Wait = true
+	installer.Timeout = 300 * time.Second
+
+	// Run the installation
+	_, err = installer.Run(chartRequested, values)
+	if err != nil {
+		return fmt.Errorf("failed to install chart: %w", err)
+	}
+
+	return nil
 } 

@@ -18,6 +18,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/jhennig/capsailer/pkg/build"
+	"github.com/jhennig/capsailer/pkg/deploy"
 	"github.com/jhennig/capsailer/pkg/registry"
 	"github.com/jhennig/capsailer/pkg/utils"
 	"github.com/spf13/cobra"
@@ -92,36 +93,19 @@ func runUnpack(bundlePath string) error {
 func runDeploy(chartName, valuesFile string) error {
 	fmt.Printf("Deploying chart %s\n", chartName)
 
-	// For testing purposes, we'll simulate the deployment
-	fmt.Println("This is a simulation of deploying a Helm chart in an air-gapped environment.")
-	fmt.Printf("Chart: %s\n", chartName)
+	// Create deployer with options
+	deployer := deploy.NewDeployer(deploy.DeployOptions{
+		ChartName:  chartName,
+		ValuesFile: valuesFile,
+		Namespace:  "default", // Use default namespace for simplicity
+	})
 	
-	if valuesFile != "" {
-		// Read the values file to display some information
-		data, err := os.ReadFile(valuesFile)
-		if err != nil {
-			return fmt.Errorf("failed to read values file: %w", err)
-		}
-		
-		fmt.Printf("Using values file: %s\n", valuesFile)
-		fmt.Println("Values file content preview:")
-		lines := strings.Split(string(data), "\n")
-		previewLines := 10
-		if len(lines) < previewLines {
-			previewLines = len(lines)
-		}
-		for i := 0; i < previewLines; i++ {
-			fmt.Printf("  %s\n", lines[i])
-		}
+	// Execute the actual deployment
+	if err := deployer.Deploy(); err != nil {
+		return fmt.Errorf("deployment failed: %w", err)
 	}
 	
-	fmt.Println("In a real air-gapped environment, this would:")
-	fmt.Println("1. Find the specified chart in the extracted bundle")
-	fmt.Println("2. Load all container images into the local registry")
-	fmt.Println("3. Rewrite image references in the values file to use the local registry")
-	fmt.Println("4. Install the chart using Helm")
-	
-	fmt.Printf("Successfully deployed %s (simulated)\n", chartName)
+	fmt.Printf("Successfully deployed %s\n", chartName)
 	return nil
 }
 
