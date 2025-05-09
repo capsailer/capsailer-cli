@@ -3,17 +3,15 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
-	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
 
 // LoadManifest loads and validates a manifest from a file
 func LoadManifest(filePath string) (*Manifest, error) {
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read manifest file: %w", err)
 	}
@@ -72,7 +70,7 @@ func SaveManifest(manifest *Manifest, filePath string) error {
 		return fmt.Errorf("failed to marshal manifest to YAML: %w", err)
 	}
 
-	if err := ioutil.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0644); err != nil {
 		return fmt.Errorf("failed to write manifest file: %w", err)
 	}
 

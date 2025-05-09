@@ -4,27 +4,51 @@
 *.dll
 *.so
 *.dylib
-/capsailer
+capsailer
 
 # Test binary, built with `go test -c`
 *.test
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Output of the go coverage tool
 *.out
+coverage.txt
 
-# Dependency directories (remove the comment below to include it)
-vendor/
+# Dependency directories (remove the comment below if you use vendor)
+# vendor/
 
 # Build artifacts
-capsailer-build/
 *.tar.gz
+*.tar
+*.tgz
+build/
+dist/
 
-# IDE and editor files
+# IDE files
 .idea/
 .vscode/
+*.iml
 *.swp
 *.swo
 
-# OS-specific files
+# OS specific files
 .DS_Store
 Thumbs.db
+
+# Test artifacts
+testdata/
+tmp/
+temp/
+**/charts/*.tgz
+**/images/*.tar
+
+# Bundle and releases
+capsailer-bundle.tar.gz
+capsailer-*.tar.gz
+capsailer-*.zip
+
+# Generated files during tests
+values.yaml
+manifest.yaml
+catalog.json
+tags.json
+charts.json
