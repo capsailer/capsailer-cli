@@ -1,0 +1,13 @@
+images:
+  - alpine:3.19.0
+  - nginx:1.25.0
+  - redis:7.0.14
+  - registry:2
+
+charts:
+  - name: nginx
+    repo: https://charts.bitnami.com/bitnami
+    version: 15.1.4
+  - name: redis
+    repo: https://charts.bitnami.com/bitnami
+    version: 17.11.7 
