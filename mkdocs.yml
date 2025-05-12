@@ -1,72 +1,42 @@
 site_name: Capsailer
-site_description: A CLI tool for delivering Kubernetes applications into air-gapped (offline) environments
-site_author: Capsailer Team
-site_url: https://github.com/jlnhnng/capsailer
-
-repo_name: jlnhnng/capsailer
+site_description: CLI tool for delivering Kubernetes applications into air-gapped environments
 repo_url: https://github.com/jlnhnng/capsailer
-edit_uri: edit/main/docs/
-
+site_url: https://jlnhnng.github.io/capsailer/
 theme:
   name: material
   palette:
     primary: blue
-    accent: light blue
+    accent: blue
   features:
-    - navigation.tabs
-    - navigation.sections
+    - navigation.instant
+    - navigation.tracking
     - navigation.expand
-    - navigation.top
-    - search.highlight
+    - navigation.indexes
     - content.code.copy
-  icon:
-    repo: fontawesome/brands/github
 
 markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.tabbed
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - attr_list
-  - def_list
-  - tables
-  - meta
-  - footnotes
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
 
 nav:
   - Home: index.md
-  - Getting Started:
-    - Installation: getting-started/installation.md
-    - Quick Start: getting-started/quick-start.md
-    - Manifest File: getting-started/manifest.md
-  - Commands:
-    - Overview: commands/index.md
-    - init: commands/init.md
-    - build: commands/build.md
-    - unpack: commands/unpack.md
-    - deploy: commands/deploy.md
-    - registry: commands/registry.md
-    - push: commands/push.md
-  - Concepts:
-    - Overview: concepts/index.md
-    - Air-Gapped Environments: concepts/air-gapped.md
-    - Bundle Structure: concepts/bundle.md
-    - Registry & Chart Repository: concepts/registry-repo.md
-  - Examples:
-    - Basic Usage: examples/basic.md
-    - Complete Workflow: examples/workflow.md
-    - Custom Values: examples/custom-values.md
-  - Contributing: contributing.md
-
-plugins:
-  - search
-  - minify:
-      minify_html: true
-
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/jlnhnng/capsailer 
+  - Getting Started: getting-started.md
+  - User Guide:
+      - Installation: user-guide/installation.md
+      - Creating Manifests: user-guide/creating-manifests.md
+      - Building Bundles: user-guide/building-bundles.md
+      - Air-Gapped Deployment: user-guide/air-gapped-deployment.md
+  - Command Reference:
+      - Overview: commands/overview.md
+      - init: commands/init.md
+      - build: commands/build.md
+      - registry: commands/registry.md
+      - push: commands/push.md
+      - unpack: commands/unpack.md
+  - Examples: examples.md
+  - Contributing: contributing.md 

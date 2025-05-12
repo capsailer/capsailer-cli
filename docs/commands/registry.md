@@ -1,90 +1,62 @@
-# Registry Command
+# registry
 
-The `registry` command deploys a Docker registry and ChartMuseum repository in your Kubernetes cluster.
+The `registry` command deploys a standalone Docker registry and Helm chart repository in a Kubernetes cluster.
 
 ## Usage
 
 ```bash
-capsailer registry [flags]
+capsailer registry [options]
 ```
-
-## Flags
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--namespace` | Kubernetes namespace for the registry | `capsailer-registry` |
-| `--image` | Container image for the registry | `registry:2` |
-| `--persistent` | Whether to use persistent storage | `true` |
-| `--kubeconfig` | Path to kubeconfig file | `~/.kube/config` |
 
 ## Description
 
-The `registry` command sets up the necessary infrastructure for air-gapped deployments:
+The `registry` command deploys:
 
-1. **Docker Registry** - For storing container images
-2. **ChartMuseum** - For hosting Helm charts
+1. A Docker registry for container images
+2. A ChartMuseum instance for Helm charts
+3. Persistent storage for both services (optional)
 
-This provides a complete solution for storing and accessing all artifacts needed for Kubernetes deployments in an air-gapped environment.
+This provides a simple way to set up a local registry for your air-gapped deployments.
 
-## Air-Gapped Considerations
+## Options
 
-When running in an air-gapped environment, the command automatically detects the lack of internet connectivity and provides guidance:
-
-- Checks if the registry image is available locally in a bundle
-- Provides options for handling the registry image in air-gapped scenarios
-- Loads the registry image from a local bundle if available
+| Option | Description |
+|--------|-------------|
+| `--namespace` | Kubernetes namespace to deploy the registry in (default: `default`) |
+| `--image` | Docker image to use for the registry (default: `registry:2`) |
+| `--persistent` | Whether to use persistent storage (default: `true`) |
+| `--storage-class` | Storage class to use for persistent volumes |
+| `--storage-size` | Size of the persistent volumes (default: `10Gi`) |
+| `--kubeconfig` | Path to the kubeconfig file |
+| `--port` | Port to expose the registry on (default: `5000`) |
+| `--chart-port` | Port to expose the chart repository on (default: `8080`) |
 
 ## Examples
 
 ```bash
-# Deploy with default settings
+# Deploy a registry with default settings
 capsailer registry
 
-# Deploy in a custom namespace
+# Deploy a registry in a specific namespace
 capsailer registry --namespace my-registry
 
-# Deploy with ephemeral storage (no persistence)
-capsailer registry --persistent=false
+# Deploy a registry with custom settings
+capsailer registry --namespace my-registry --image registry:2.8 --persistent=false
 
-# Use a specific kubeconfig file
+# Deploy a registry with a specific kubeconfig
 capsailer registry --kubeconfig /path/to/kubeconfig
 ```
 
-## Workflow Integration
+## Exit Codes
 
-The `registry` command is typically the first step in an air-gapped deployment workflow:
+| Code | Description |
+|------|-------------|
+| 0 | Success |
+| 1 | Failed to create namespace |
+| 2 | Failed to deploy registry |
+| 3 | Failed to deploy chart repository |
 
-```bash
-# Step 1: Deploy registry infrastructure
-capsailer registry --namespace my-registry
+## See Also
 
-# Step 2: Push artifacts from a bundle
-capsailer push --bundle capsailer-bundle.tar.gz --namespace my-registry
-
-# Step 3: Deploy applications
-capsailer deploy --chart nginx --registry-namespace my-registry
-```
-
-## Accessing the Registry
-
-After deployment, the registry is available within the cluster at:
-
-```
-registry.<namespace>.svc.cluster.local:5000
-```
-
-ChartMuseum is available at:
-
-```
-chartmuseum.<namespace>.svc.cluster.local:8080
-```
-
-For external access, you can use port-forwarding:
-
-```bash
-# Port-forward the registry service
-kubectl port-forward -n capsailer-registry svc/registry 5000:5000
-
-# Port-forward the ChartMuseum service
-kubectl port-forward -n capsailer-registry svc/chartmuseum 8080:8080
-``` 
+- [Air-Gapped Deployment](../user-guide/air-gapped-deployment.md)
+- [push](push.md)

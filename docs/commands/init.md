@@ -1,85 +1,48 @@
-# Init Command
+# init
 
 The `init` command validates and normalizes a manifest file.
 
 ## Usage
 
 ```bash
-capsailer init --manifest MANIFEST_FILE [flags]
-```
-
-## Flags
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--manifest` | Path to the manifest file | `manifest.yaml` |
-
-## Examples
-
-```bash
-# Validate the default manifest file
-capsailer init
-
-# Validate a specific manifest file
-capsailer init --manifest my-manifest.yaml
+capsailer init --manifest <manifest-file>
 ```
 
 ## Description
 
-The `init` command performs several important validation steps:
+The `init` command performs the following actions:
 
-1. **YAML Validation** - Ensures the manifest file is valid YAML
-2. **Schema Validation** - Verifies that all required fields are present and properly formatted
-3. **Values File Verification** - Checks that any referenced values files exist
-4. **Summary Generation** - Provides a summary of the images and charts included in the manifest
+1. Validates that the manifest file is properly formatted
+2. Checks that all required fields are present
+3. Normalizes image references (adds `latest` tag if missing)
+4. Validates that chart references are properly formatted
 
-This command is typically run before the `build` command to catch any issues with the manifest file early in the process.
+## Options
 
-## Output
+| Option | Description |
+|--------|-------------|
+| `--manifest` | Path to the manifest file (required) |
+| `--output` | Path to write the normalized manifest (optional) |
 
-The command outputs a summary of the manifest contents:
-
-```
-Initializing manifest from manifest.yaml
-Manifest is valid. Found 3 images and 2 charts.
-```
-
-If there are any issues with the manifest, the command will provide detailed error messages:
-
-```
-Error: failed to load manifest: chart 'nginx' is missing required field 'repo'
-```
-
-## Workflow Integration
-
-The `init` command is typically the first step in the workflow:
+## Examples
 
 ```bash
-# Step 1: Initialize and validate the manifest
+# Validate a manifest file
 capsailer init --manifest manifest.yaml
 
-# Step 2: Build the bundle
-capsailer build --manifest manifest.yaml --output bundle.tar.gz
+# Validate and write the normalized manifest to a new file
+capsailer init --manifest manifest.yaml --output normalized-manifest.yaml
 ```
 
-## Manifest File Format
+## Exit Codes
 
-The manifest file should follow this structure:
+| Code | Description |
+|------|-------------|
+| 0 | Success |
+| 1 | Invalid manifest format |
+| 2 | Missing required fields |
 
-```yaml
-images:
-  - nginx:1.25.0
-  - redis:7.0.14
-  - registry:2
+## See Also
 
-charts:
-  - name: nginx
-    repo: https://charts.bitnami.com/bitnami
-    version: 15.1.4
-  - name: redis
-    repo: https://charts.bitnami.com/bitnami
-    version: 17.11.7
-    valuesFile: redis-values.yaml
-```
-
-For more details on the manifest file format, see the [Manifest File](../getting-started/manifest.md) documentation. 
+- [Creating Manifests](../user-guide/creating-manifests.md)
+- [build](build.md) 

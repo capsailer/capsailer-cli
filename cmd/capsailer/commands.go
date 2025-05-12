@@ -19,7 +19,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/jlnhnng/capsailer/pkg/build"
-	"github.com/jlnhnng/capsailer/pkg/deploy"
 	"github.com/jlnhnng/capsailer/pkg/registry"
 	"github.com/jlnhnng/capsailer/pkg/utils"
 	"github.com/spf13/cobra"
@@ -87,28 +86,6 @@ func runUnpack(bundlePath string) error {
 	fmt.Println("Bundle unpacked and registry ready for use.")
 	fmt.Println("You can now use standard Helm commands to deploy applications.")
 
-	return nil
-}
-
-// runDeploy handles the deploy command
-func runDeploy(chartName, valuesFile string) error {
-	fmt.Printf("Deploying chart %s\n", chartName)
-
-	// Create deployer with options
-	deployer := deploy.NewDeployer(deploy.DeployOptions{
-		ChartName:         chartName,
-		ValuesFile:        valuesFile,
-		Namespace:         "default", // Use default namespace for simplicity
-		RegistryNamespace: registryNamespace,
-		KubeconfigPath:    kubeconfigPath,
-	})
-
-	// Execute the actual deployment
-	if err := deployer.Deploy(); err != nil {
-		return fmt.Errorf("deployment failed: %w", err)
-	}
-
-	fmt.Printf("Successfully deployed %s\n", chartName)
 	return nil
 }
 

@@ -1,4 +1,4 @@
-.PHONY: build clean test install lint release release-all help example-manifest example-build docker-build
+.PHONY: build clean test install lint release release-all help example-manifest example-build
 
 BINARY_NAME := capsailer
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
@@ -40,7 +40,6 @@ help:
 	@echo "  install      - Install binary to /usr/local/bin"
 	@echo "  release      - Create release package for current platform"
 	@echo "  release-all  - Create release packages for all supported platforms"
-	@echo "  docker-build - Build the Docker image"
 	@echo ""
 	@echo "Example usage targets:"
 	@echo "  example-manifest - Copy example manifest to manifest.yaml"

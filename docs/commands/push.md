@@ -1,87 +1,65 @@
-# Push Command
+# push
 
-The `push` command uploads container images and Helm charts to the registry in your Kubernetes cluster or an external registry.
+The `push` command uploads container images and Helm charts from a bundle to a registry.
 
 ## Usage
 
 ```bash
-capsailer push [flags]
+capsailer push --bundle <bundle-file> [options]
 ```
-
-## Flags
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--bundle` | Path to the bundle file or directory | |
-| `--image` | Specific image to push | |
-| `--namespace` | Kubernetes namespace for the registry | `capsailer-registry` |
-| `--kubeconfig` | Path to kubeconfig file | `~/.kube/config` |
-| `--external-registry` | External registry URL to push images to | |
-| `--username` | Username for authentication with external registry | |
-| `--password` | Password for authentication with external registry | |
 
 ## Description
 
-The `push` command handles uploading artifacts to the local or external infrastructure:
+The `push` command performs the following actions:
 
-1. **Image Pushing** - Uploads container images to the Docker registry
-2. **Chart Publishing** - Publishes Helm charts to ChartMuseum (internal registry only)
+1. Finds the registry service in the specified namespace (or uses the provided external registry)
+2. Sets up a Helm chart repository if needed (for internal registry only)
+3. Loads images from the bundle without requiring Docker or skopeo
+4. Pushes images directly to the registry using built-in container registry library
+5. Publishes Helm charts to the chart repository using direct HTTP API calls (for internal registry only)
 
-This command works without requiring external tools like Docker or skopeo, making it ideal for air-gapped environments where such tools might not be available.
+Unlike many similar tools, Capsailer doesn't rely on external dependencies like Docker or skopeo to push images and charts, making it truly self-contained and perfect for air-gapped environments.
 
-## Features
+## Options
 
-- **Self-contained** - No dependencies on Docker or other external tools
-- **Bundle Support** - Push all artifacts from a bundle in one command
-- **Single Image Mode** - Push individual images when needed
-- **Automatic Discovery** - Finds the registry and ChartMuseum services in the cluster
-- **Direct Registry API** - Uses direct registry API calls for pushing images
-- **ChartMuseum Integration** - Automatically publishes charts to ChartMuseum
-- **External Registry Support** - Push to external registries like Artifactory or Docker Hub
+| Option | Description |
+|--------|-------------|
+| `--bundle` | Path to the bundle file or directory (required) |
+| `--namespace` | Kubernetes namespace where the registry is deployed |
+| `--external-registry` | URL of an external registry to push to |
+| `--username` | Username for authentication with the registry |
+| `--password` | Password for authentication with the registry |
+| `--kubeconfig` | Path to the kubeconfig file |
+| `--skip-tls-verify` | Skip TLS verification when pushing to the registry |
+| `--image` | Push only a specific image from the bundle |
 
 ## Examples
 
 ```bash
-# Push all artifacts from a bundle to the internal registry
-capsailer push --bundle capsailer-bundle.tar.gz
-
-# Push a single image to the internal registry
-capsailer push --image nginx:latest
-
-# Push all images from a bundle to an external registry
-capsailer push --bundle capsailer-bundle.tar.gz --external-registry artifactory.example.com --username myuser --password mypassword
-```
-
-## Workflow Integration
-
-The `push` command is typically used after setting up the registry and before deploying applications:
-
-```bash
-# Set up registry (for internal registry)
-capsailer registry --namespace my-registry
-
-# Push artifacts
+# Push all images and charts from a bundle to the registry
 capsailer push --bundle capsailer-bundle.tar.gz --namespace my-registry
 
-# Or push to an external registry
+# Push artifacts from an unpacked bundle directory
+capsailer push --bundle ./unpacked-bundle --namespace my-registry
+
+# Push to an external registry
 capsailer push --bundle capsailer-bundle.tar.gz --external-registry artifactory.example.com --username myuser --password mypassword
 
-# Deploy applications
-# For internal registry:
-kubectl port-forward -n my-registry svc/chartmuseum 8080:8080 &
-helm repo add local-charts http://localhost:8080
-helm install my-app local-charts/my-app
-
-# For external registry:
-# Use standard Helm commands with the external registry URL
-helm install my-app --set image.registry=artifactory.example.com my-app
+# Push a single image to the registry
+capsailer push --image nginx:latest --namespace my-registry
 ```
 
-## Notes on External Registries
+## Exit Codes
 
-When pushing to external registries:
+| Code | Description |
+|------|-------------|
+| 0 | Success |
+| 1 | Failed to load bundle |
+| 2 | Failed to find registry |
+| 3 | Failed to push images |
+| 4 | Failed to push charts |
 
-1. Helm charts are not published (only container images are pushed)
-2. Authentication is supported via username/password
-3. Docker credentials from ~/.docker/config.json are used if available
-4. The external registry must support the Docker Registry API v2
+## See Also
+
+- [Air-Gapped Deployment](../user-guide/air-gapped-deployment.md)
+- [registry](registry.md) 
