@@ -36,7 +36,7 @@ jobs:
     - name: Upload binary
       uses: actions/upload-artifact@v4
       with:
-        name: capsailer-linux-amd64
+        name: capsailer-linux-amd64-build
         path: capsailer
 
   integration:
@@ -188,19 +188,30 @@ jobs:
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.asset_name }}
+          name: ${{ matrix.asset_name }}-release
           path: ${{ matrix.binary_name }}
+          if-no-files-found: error
+          overwrite: true
       
-      - name: Compress Binary
-        if: runner.os != 'Windows'
-        run: tar -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.binary_name }}
+      - name: Compress Binary (Unix)
+        if: matrix.goos != 'windows'
+        run: |
+          tar -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.binary_name }}
+          echo "COMPRESSED_FILE=${{ matrix.asset_name }}.tar.gz" >> $GITHUB_ENV
 
       - name: Compress Binary (Windows)
-        if: runner.os == 'Windows'
-        uses: vimtor/action-zip@v1.1
+        if: matrix.goos == 'windows'
+        run: |
+          zip -j ${{ matrix.asset_name }}.zip ${{ matrix.binary_name }}
+          echo "COMPRESSED_FILE=${{ matrix.asset_name }}.zip" >> $GITHUB_ENV
+      
+      - name: Upload Compressed Binary
+        uses: actions/upload-artifact@v4
         with:
-          files: ${{ matrix.binary_name }}
-          dest: ${{ matrix.asset_name }}.zip
+          name: ${{ matrix.asset_name }}-compressed
+          path: ${{ env.COMPRESSED_FILE }}
+          if-no-files-found: error
+          overwrite: true
 
   publish:
     name: Publish GitHub Release
@@ -214,15 +225,22 @@ jobs:
       
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: "*-compressed"
+          merge-multiple: true
       
       - name: List Files
-        run: find . -type f | sort
+        run: |
+          find ./artifacts -type f | sort
+          ls -la ./artifacts
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            **/capsailer-*
+            artifacts/*.tar.gz
+            artifacts/*.zip
           draft: false
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
           generate_release_notes: true 
