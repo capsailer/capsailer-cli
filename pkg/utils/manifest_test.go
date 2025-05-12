@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -45,7 +46,11 @@ charts:
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
-	defer os.Remove(tempFile.Name())
+	defer func() {
+		if err := os.Remove(tempFile.Name()); err != nil {
+			fmt.Fprintf(os.Stderr, "Error removing temp file: %v\n", err)
+		}
+	}()
 
 	if _, err := tempFile.Write([]byte(manifestContent)); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)

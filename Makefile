@@ -71,7 +71,7 @@ test:
 # Run linting checks
 lint:
 	@command -v golangci-lint >/dev/null 2>&1 || { echo "Installing golangci-lint..."; go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; }
-	golangci-lint run ./...
+	$(HOME)/go/bin/golangci-lint run ./...
 
 # Install the binary to /usr/local/bin
 install: build

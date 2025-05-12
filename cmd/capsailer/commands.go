@@ -95,9 +95,11 @@ func runDeploy(chartName, valuesFile string) error {
 
 	// Create deployer with options
 	deployer := deploy.NewDeployer(deploy.DeployOptions{
-		ChartName:  chartName,
-		ValuesFile: valuesFile,
-		Namespace:  "default", // Use default namespace for simplicity
+		ChartName:        chartName,
+		ValuesFile:       valuesFile,
+		Namespace:        "default", // Use default namespace for simplicity
+		RegistryNamespace: registryNamespace,
+		KubeconfigPath:   kubeconfigPath,
 	})
 	
 	// Execute the actual deployment
@@ -325,7 +327,7 @@ func pushSingleImage(image, registryURL string) error {
 	return nil
 }
 
-// Push images from the bundle
+// pushImagesFromBundle pushes all images from a bundle to a registry
 func pushImagesFromBundle(bundlePath, registryURL, namespace, kubeconfigPath string) error {
 	fmt.Printf("Pushing all images from bundle %s to registry\n", bundlePath)
 	
@@ -339,10 +341,14 @@ func pushImagesFromBundle(bundlePath, registryURL, namespace, kubeconfigPath str
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Error removing temp directory: %v\n", err)
+		}
+	}()
 	
-	// Extract the bundle if it's not already unpacked
-	imagesDir := "images"
+	// Determine the images directory path
+	var imagesDir string
 	if filepath.Ext(bundlePath) == ".tar" || filepath.Ext(bundlePath) == ".gz" {
 		fmt.Printf("Extracting bundle to %s...\n", tempDir)
 		
@@ -546,10 +552,14 @@ func publishChartsFromBundle(bundlePath, namespace, kubeconfigPath string) error
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Error removing temp directory: %v\n", err)
+		}
+	}()
 	
-	// Extract the bundle if it's not already unpacked
-	chartsDir := "charts"
+	// Determine the charts directory path
+	var chartsDir string
 	if filepath.Ext(bundlePath) == ".tar" || filepath.Ext(bundlePath) == ".gz" {
 		// Bundle is already extracted in pushImagesFromBundle, reuse that temp dir if possible
 		// But handle the case if this function is called independently
@@ -661,7 +671,9 @@ func startPortForward(namespace, serviceName string, port int, kubeconfigPath st
 func stopPortForward(process *os.Process) {
 	if process != nil {
 		fmt.Println("Stopping port forwarding...")
-		process.Kill()
+		if err := process.Kill(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error stopping port forwarding: %v\n", err)
+		}
 	}
 }
 
@@ -821,7 +833,11 @@ func publishChartToRepo(chartPath, repoURL string) error {
 		fmt.Printf("Warning: Chart repository health check failed: %v\n", err)
 		fmt.Printf("Will still attempt to push chart, but it may fail.\n")
 	} else {
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error closing response body: %v\n", err)
+			}
+		}()
 		if resp.StatusCode != http.StatusOK {
 			fmt.Printf("Warning: Chart repository returned status %d for health check.\n", resp.StatusCode)
 		} else {
@@ -873,7 +889,11 @@ func publishChartToRepo(chartPath, repoURL string) error {
 		// Try an alternative approach with direct chart upload
 		return tryDirectChartUpload(chartPath, uploadURL)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing response body: %v\n", err)
+		}
+	}()
 	
 	// Check response status
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
@@ -913,7 +933,11 @@ func tryDirectChartUpload(chartPath, uploadURL string) error {
 	if err != nil {
 		return fmt.Errorf("failed to upload chart (alternative method): %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing response body: %v\n", err)
+		}
+	}()
 	
 	// Check response status
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
@@ -1008,7 +1032,11 @@ func buildLocalRegistryImage() error {
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Error removing temp directory: %v\n", err)
+		}
+	}()
 	
 	// Create a simple Dockerfile that just pulls the registry image
 	dockerfilePath := filepath.Join(tmpDir, "Dockerfile")

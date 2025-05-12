@@ -2,7 +2,6 @@ package helm
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -34,11 +33,15 @@ func DownloadChart(name, repoURL, version, outputDir string) (*ChartInfo, error)
 	settings := cli.New()
 
 	// Create a temporary directory for the repository cache
-	tempDir, err := ioutil.TempDir("", "capsailer-helm-cache")
+	tempDir, err := os.MkdirTemp("", "capsailer-helm-cache")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary directory: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Error removing temp directory: %v\n", err)
+		}
+	}()
 
 	// Update repository settings
 	repoCache := filepath.Join(tempDir, "repository")

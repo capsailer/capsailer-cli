@@ -3,7 +3,6 @@ package build
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -43,7 +42,11 @@ func (b *Builder) Build() error {
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Error removing temp directory: %v\n", err)
+		}
+	}()
 
 	// Load and validate the manifest
 	manifest, err := utils.LoadManifest(b.options.ManifestPath)
@@ -81,12 +84,12 @@ func (b *Builder) Build() error {
 	}
 
 	// Copy manifest to temp directory
-	manifestData, err := ioutil.ReadFile(b.options.ManifestPath)
+	manifestData, err := os.ReadFile(b.options.ManifestPath)
 	if err != nil {
 		return fmt.Errorf("failed to read manifest file: %w", err)
 	}
 	
-	if err := ioutil.WriteFile(filepath.Join(tempDir, "manifest.yaml"), manifestData, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tempDir, "manifest.yaml"), manifestData, 0644); err != nil {
 		return fmt.Errorf("failed to write manifest to temp directory: %w", err)
 	}
 
@@ -176,7 +179,11 @@ func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create temp directory for helm cache: %w", err)
 		}
-		defer os.RemoveAll(cacheDir)
+		defer func() {
+			if err := os.RemoveAll(cacheDir); err != nil {
+				fmt.Fprintf(os.Stderr, "Error removing cache directory: %v\n", err)
+			}
+		}()
 		
 		// Initialize the chart repository and download the index file
 		if err := initChartRepo(repoName, repoURL, cacheDir); err != nil {
@@ -242,13 +249,13 @@ func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 		}
 		
 		// Write chart data to file
-		if err := ioutil.WriteFile(chartPath, data.Bytes(), 0644); err != nil {
+		if err := os.WriteFile(chartPath, data.Bytes(), 0644); err != nil {
 			return fmt.Errorf("failed to write chart file: %w", err)
 		}
 		
 		fmt.Printf("Saved chart: %s\n", chartPath)
 	}
-	
+
 	return nil
 }
 
@@ -296,14 +303,14 @@ func (b *Builder) copyValuesFiles(charts []utils.Chart, outputDir string) error 
 		fmt.Printf("Copying values file for chart: %s\n", chart.Name)
 		
 		// Read values file
-		valuesData, err := ioutil.ReadFile(chart.ValuesFile)
+		valuesData, err := os.ReadFile(chart.ValuesFile)
 		if err != nil {
 			return fmt.Errorf("failed to read values file %s: %w", chart.ValuesFile, err)
 		}
 		
 		// Write to output directory
 		outputPath := filepath.Join(outputDir, filepath.Base(chart.ValuesFile))
-		if err := ioutil.WriteFile(outputPath, valuesData, 0644); err != nil {
+		if err := os.WriteFile(outputPath, valuesData, 0644); err != nil {
 			return fmt.Errorf("failed to write values file: %w", err)
 		}
 		

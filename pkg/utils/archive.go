@@ -16,15 +16,27 @@ func CreateTarGz(sourceDir, outputPath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing file: %v\n", err)
+		}
+	}()
 
 	// Create gzip writer
 	gw := gzip.NewWriter(file)
-	defer gw.Close()
+	defer func() {
+		if err := gw.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing gzip writer: %v\n", err)
+		}
+	}()
 
 	// Create tar writer
 	tw := tar.NewWriter(gw)
-	defer tw.Close()
+	defer func() {
+		if err := tw.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing tar writer: %v\n", err)
+		}
+	}()
 	
 	// Walk through the source directory
 	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
@@ -56,7 +68,11 @@ func CreateTarGz(sourceDir, outputPath string) error {
 			if err != nil {
 				return fmt.Errorf("failed to open file '%s': %w", path, err)
 			}
-			defer file.Close()
+			defer func() {
+				if err := file.Close(); err != nil {
+					fmt.Fprintf(os.Stderr, "Error closing file: %v\n", err)
+				}
+			}()
 
 			if _, err := io.Copy(tw, file); err != nil {
 				return fmt.Errorf("failed to write file to tar: %w", err)

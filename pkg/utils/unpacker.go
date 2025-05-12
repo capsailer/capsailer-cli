@@ -54,14 +54,22 @@ func (u *Unpacker) Unpack() error {
 	if err != nil {
 		return fmt.Errorf("failed to open bundle: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing file: %v\n", err)
+		}
+	}()
 
 	// Create a gzip reader
 	gzr, err := gzip.NewReader(file)
 	if err != nil {
 		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}
-	defer gzr.Close()
+	defer func() {
+		if err := gzr.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing gzip reader: %v\n", err)
+		}
+	}()
 
 	// Create a tar reader
 	tr := tar.NewReader(gzr)
@@ -101,10 +109,14 @@ func (u *Unpacker) Unpack() error {
 
 			// Copy content from tar to file
 			if _, err := io.Copy(f, tr); err != nil {
-				f.Close()
+				if closeErr := f.Close(); closeErr != nil {
+					fmt.Fprintf(os.Stderr, "Error closing file: %v\n", closeErr)
+				}
 				return fmt.Errorf("failed to write to file '%s': %w", target, err)
 			}
-			f.Close()
+			if err := f.Close(); err != nil {
+				return fmt.Errorf("failed to close file '%s': %w", target, err)
+			}
 
 		case tar.TypeSymlink:
 			// Create symlink

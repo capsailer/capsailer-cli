@@ -59,10 +59,8 @@ var outputFile string
 var bundleFile string
 var chartName string
 var valuesFile string
-var registryNamespace string
-var registryImage string
-var registryPersistent bool
 var kubeconfigPath string
+var registryNamespace string
 
 func init() {
 	// init command flags
@@ -74,14 +72,18 @@ func init() {
 	
 	// unpack command flags
 	unpackCmd.Flags().StringVar(&bundleFile, "file", "", "Path to the bundle file")
-	unpackCmd.MarkFlagRequired("file")
+	if err := unpackCmd.MarkFlagRequired("file"); err != nil {
+		fmt.Printf("Error marking flag as required: %v\n", err)
+	}
 	
 	// deploy command flags
 	deployCmd.Flags().StringVar(&chartName, "chart", "", "Name of the chart to deploy")
 	deployCmd.Flags().StringVar(&valuesFile, "values", "", "Values file for the chart")
-	deployCmd.MarkFlagRequired("chart")
-	
-	// registry command flags (moved to commands.go)
+	deployCmd.Flags().StringVar(&kubeconfigPath, "kubeconfig", "", "Path to kubeconfig file")
+	deployCmd.Flags().StringVar(&registryNamespace, "registry-namespace", "capsailer-registry", "Namespace where registry and chartmuseum are deployed")
+	if err := deployCmd.MarkFlagRequired("chart"); err != nil {
+		fmt.Printf("Error marking flag as required: %v\n", err)
+	}
 	
 	// Add commands to root
 	rootCmd.AddCommand(initCmd)
