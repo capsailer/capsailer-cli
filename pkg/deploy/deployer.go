@@ -15,12 +15,12 @@ import (
 
 // DeployOptions defines options for deployment
 type DeployOptions struct {
-	ChartName      string
-	ValuesFile     string
-	Namespace      string
-	ReleaseName    string
-	Registry       string
-	KubeconfigPath string
+	ChartName         string
+	ValuesFile        string
+	Namespace         string
+	ReleaseName       string
+	Registry          string
+	KubeconfigPath    string
 	RegistryNamespace string // Namespace where registry and chartmuseum are deployed
 }
 
@@ -35,11 +35,11 @@ func NewDeployer(options DeployOptions) *Deployer {
 	if options.Namespace == "" {
 		options.Namespace = "default"
 	}
-	
+
 	if options.ReleaseName == "" {
 		options.ReleaseName = options.ChartName
 	}
-	
+
 	if options.Registry == "" {
 		options.Registry = "localhost:5000"
 	}
@@ -66,18 +66,18 @@ func (d *Deployer) Deploy() error {
 	// If the chart is not local, we need to download it from ChartMuseum
 	if !isLocal {
 		fmt.Printf("Chart '%s' found in ChartMuseum, downloading...\n", d.Options.ChartName)
-		
+
 		// Set up port forwarding to ChartMuseum
 		forwardCmd := exec.Command("kubectl", "port-forward", "-n", d.Options.RegistryNamespace, "svc/chartmuseum", "8080:8080")
 		if d.Options.KubeconfigPath != "" {
 			forwardCmd.Args = append(forwardCmd.Args, "--kubeconfig", d.Options.KubeconfigPath)
 		}
-		
+
 		// Start port-forwarding in background
 		if err := forwardCmd.Start(); err != nil {
 			return fmt.Errorf("failed to start port-forward to ChartMuseum: %w", err)
 		}
-		
+
 		// Ensure we stop the port-forwarding when done
 		defer func() {
 			if forwardCmd.Process != nil {
@@ -86,11 +86,11 @@ func (d *Deployer) Deploy() error {
 				}
 			}
 		}()
-		
+
 		// Give port-forwarding time to establish
 		fmt.Println("Setting up port-forwarding to ChartMuseum for download...")
 		time.Sleep(2 * time.Second)
-		
+
 		// Use localhost URL for chart download
 		repoURL := "http://localhost:8080"
 
@@ -131,9 +131,9 @@ func (d *Deployer) Deploy() error {
 	}
 
 	// Install the chart
-	fmt.Printf("Installing chart %s as release %s in namespace %s\n", 
+	fmt.Printf("Installing chart %s as release %s in namespace %s\n",
 		d.Options.ChartName, d.Options.ReleaseName, d.Options.Namespace)
-	
+
 	if err := helm.InstallChart(chartPath, d.Options.ReleaseName, d.Options.Namespace, values); err != nil {
 		return fmt.Errorf("failed to install chart: %w", err)
 	}
@@ -151,13 +151,13 @@ func (d *Deployer) findChart(name string) (string, bool, error) {
 	}
 
 	// Try with .tgz extension
-	chartPath = filepath.Join("charts", name + ".tgz")
+	chartPath = filepath.Join("charts", name+".tgz")
 	if _, err := os.Stat(chartPath); err == nil {
 		return chartPath, true, nil
 	}
 
 	// Try finding by pattern
-	matches, err := filepath.Glob(filepath.Join("charts", name + "-*.tgz"))
+	matches, err := filepath.Glob(filepath.Join("charts", name+"-*.tgz"))
 	if err == nil && len(matches) > 0 {
 		// Use the first match
 		return matches[0], true, nil
@@ -165,7 +165,7 @@ func (d *Deployer) findChart(name string) (string, bool, error) {
 
 	// If not found locally, check if ChartMuseum is available
 	fmt.Println("Chart not found locally, checking if ChartMuseum is available...")
-	
+
 	// Check if ChartMuseum is running in the cluster
 	if chartExists, err := d.chartExistsInChartMuseum(name); err == nil && chartExists {
 		// Return a placeholder path and isLocal=false to indicate it's in ChartMuseum
@@ -188,18 +188,18 @@ func (d *Deployer) chartExistsInChartMuseum(chartName string) (bool, error) {
 	// Check if ChartMuseum is available by querying its API
 	// We'll use port-forwarding to access it, so we don't need this URL directly
 	_ = fmt.Sprintf("%s/api/charts/%s", repoURL, chartName)
-	
+
 	// Use kubectl port-forward to access ChartMuseum
 	forwardCmd := exec.Command("kubectl", "port-forward", "-n", d.Options.RegistryNamespace, "svc/chartmuseum", "8080:8080")
 	if d.Options.KubeconfigPath != "" {
 		forwardCmd.Args = append(forwardCmd.Args, "--kubeconfig", d.Options.KubeconfigPath)
 	}
-	
+
 	// Start port-forwarding in background
 	if err := forwardCmd.Start(); err != nil {
 		return false, fmt.Errorf("failed to start port-forward to ChartMuseum: %w", err)
 	}
-	
+
 	// Ensure we stop the port-forwarding when done
 	defer func() {
 		if forwardCmd.Process != nil {
@@ -208,16 +208,16 @@ func (d *Deployer) chartExistsInChartMuseum(chartName string) (bool, error) {
 			}
 		}
 	}()
-	
+
 	// Give port-forwarding time to establish
 	fmt.Println("Setting up port-forwarding to ChartMuseum...")
-	
+
 	// Use the local port-forwarded URL
 	localURL := "http://localhost:8080/api/charts/" + chartName
-	
+
 	// Wait a moment for port-forwarding to establish
 	time.Sleep(2 * time.Second)
-	
+
 	// Check if chart exists
 	resp, err := http.Get(localURL)
 	if err != nil {
@@ -228,7 +228,7 @@ func (d *Deployer) chartExistsInChartMuseum(chartName string) (bool, error) {
 			fmt.Fprintf(os.Stderr, "Error closing response body: %v\n", err)
 		}
 	}()
-	
+
 	// If status code is 200, chart exists
 	return resp.StatusCode == http.StatusOK, nil
 }
@@ -240,18 +240,18 @@ func (d *Deployer) getChartMuseumURL() (string, error) {
 	if d.Options.KubeconfigPath != "" {
 		kubectlArgs = append(kubectlArgs, "--kubeconfig", d.Options.KubeconfigPath)
 	}
-	
+
 	cmd := exec.Command("kubectl", kubectlArgs...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("failed to get ChartMuseum service: %w", err)
 	}
-	
+
 	serviceIP := strings.TrimSpace(string(output))
 	if serviceIP == "" {
 		return "", fmt.Errorf("ChartMuseum service not found in namespace %s", d.Options.RegistryNamespace)
 	}
-	
+
 	return fmt.Sprintf("http://%s:8080", serviceIP), nil
 }
 
@@ -299,4 +299,4 @@ func rewriteImageReferences(values map[string]interface{}, registry string) erro
 	}
 
 	return nil
-} 
+}

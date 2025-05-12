@@ -75,4 +75,4 @@ func SaveManifest(manifest *Manifest, filePath string) error {
 	}
 
 	return nil
-} 
+}

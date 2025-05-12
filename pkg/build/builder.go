@@ -57,11 +57,11 @@ func (b *Builder) Build() error {
 	// Create directory structure
 	imagesDir := filepath.Join(tempDir, "images")
 	chartsDir := filepath.Join(tempDir, "charts")
-	
+
 	if err := os.MkdirAll(imagesDir, 0755); err != nil {
 		return fmt.Errorf("failed to create images directory: %w", err)
 	}
-	
+
 	if err := os.MkdirAll(chartsDir, 0755); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
@@ -88,7 +88,7 @@ func (b *Builder) Build() error {
 	if err != nil {
 		return fmt.Errorf("failed to read manifest file: %w", err)
 	}
-	
+
 	if err := os.WriteFile(filepath.Join(tempDir, "manifest.yaml"), manifestData, 0644); err != nil {
 		return fmt.Errorf("failed to write manifest to temp directory: %w", err)
 	}
@@ -112,11 +112,11 @@ func (b *Builder) downloadImages(images []string, outputDir string) error {
 	for _, image := range images {
 		wg.Add(1)
 		semaphore <- struct{}{}
-		
+
 		go func(img string) {
 			defer wg.Done()
 			defer func() { <-semaphore }()
-			
+
 			if err := b.downloadImage(img, outputDir); err != nil {
 				errChan <- fmt.Errorf("failed to download image %s: %w", img, err)
 			}
@@ -138,29 +138,29 @@ func (b *Builder) downloadImages(images []string, outputDir string) error {
 // downloadImage downloads a single container image using go-containerregistry
 func (b *Builder) downloadImage(image, outputDir string) error {
 	fmt.Printf("Downloading image: %s\n", image)
-	
+
 	// Parse the image reference
 	ref, err := name.ParseReference(image)
 	if err != nil {
 		return fmt.Errorf("failed to parse image reference: %w", err)
 	}
-	
+
 	// Pull the image
 	img, err := remote.Image(ref, remote.WithContext(context.Background()))
 	if err != nil {
 		return fmt.Errorf("failed to pull image: %w", err)
 	}
-	
+
 	// Create a filename-safe version of the image name
 	safeImageName := strings.ReplaceAll(image, "/", "_")
 	safeImageName = strings.ReplaceAll(safeImageName, ":", "_")
-	outputPath := filepath.Join(outputDir, safeImageName + ".tar")
-	
+	outputPath := filepath.Join(outputDir, safeImageName+".tar")
+
 	// Save the image as a tarball
 	if err := tarball.WriteToFile(outputPath, ref, img); err != nil {
 		return fmt.Errorf("failed to save image: %w", err)
 	}
-	
+
 	fmt.Printf("Saved image: %s\n", outputPath)
 	return nil
 }
@@ -169,11 +169,11 @@ func (b *Builder) downloadImage(image, outputDir string) error {
 func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 	for _, chart := range charts {
 		fmt.Printf("Downloading chart: %s (version %s)\n", chart.Name, chart.Version)
-		
+
 		// Create a chart repository
 		repoURL := chart.Repo
 		repoName := fmt.Sprintf("capsailer-%s", chart.Name)
-		
+
 		// Create temp directory for repo cache
 		cacheDir, err := os.MkdirTemp("", "capsailer-helm-cache")
 		if err != nil {
@@ -184,24 +184,24 @@ func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 				fmt.Fprintf(os.Stderr, "Error removing cache directory: %v\n", err)
 			}
 		}()
-		
+
 		// Initialize the chart repository and download the index file
 		if err := initChartRepo(repoName, repoURL, cacheDir); err != nil {
 			return fmt.Errorf("failed to initialize chart repository: %w", err)
 		}
-		
+
 		// Find the chart version in the index
 		indexPath := filepath.Join(cacheDir, fmt.Sprintf("%s-index.yaml", repoName))
 		indexFile, err := repo.LoadIndexFile(indexPath)
 		if err != nil {
 			return fmt.Errorf("failed to load repository index: %w", err)
 		}
-		
+
 		chartVersions, ok := indexFile.Entries[chart.Name]
 		if !ok {
 			return fmt.Errorf("chart %s not found in repository", chart.Name)
 		}
-		
+
 		// Find the requested version
 		var chartURL string
 		for _, ver := range chartVersions {
@@ -213,16 +213,16 @@ func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 				break
 			}
 		}
-		
+
 		if chartURL == "" {
 			return fmt.Errorf("chart version %s not found for %s", chart.Version, chart.Name)
 		}
-		
+
 		// If URL is relative, prepend the repo URL
 		if !strings.HasPrefix(chartURL, "http://") && !strings.HasPrefix(chartURL, "https://") {
 			chartURL = strings.TrimSuffix(repoURL, "/") + "/" + strings.TrimPrefix(chartURL, "/")
 		}
-		
+
 		// Set up HTTP getter
 		getters := getter.Providers{
 			getter.Provider{
@@ -230,32 +230,32 @@ func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 				New:     getter.NewHTTPGetter,
 			},
 		}
-		
+
 		// Download the chart
 		chartFileName := fmt.Sprintf("%s-%s.tgz", chart.Name, chart.Version)
 		chartPath := filepath.Join(outputDir, chartFileName)
-		
+
 		fmt.Printf("Downloading chart from %s to %s\n", chartURL, chartPath)
-		
+
 		// Get an HTTP client and download the chart
 		httpGetter, err := getters.ByScheme("https")
 		if err != nil {
 			return fmt.Errorf("failed to get HTTP getter: %w", err)
 		}
-		
+
 		data, err := httpGetter.Get(chartURL)
 		if err != nil {
 			return fmt.Errorf("failed to download chart: %w", err)
 		}
-		
+
 		// Write chart data to file
 		if err := os.WriteFile(chartPath, data.Bytes(), 0644); err != nil {
 			return fmt.Errorf("failed to write chart file: %w", err)
 		}
-		
+
 		fmt.Printf("Saved chart: %s\n", chartPath)
 	}
-	
+
 	return nil
 }
 
@@ -266,7 +266,7 @@ func initChartRepo(name, url, cacheDir string) error {
 		Name: name,
 		URL:  url,
 	}
-	
+
 	// Create providers
 	providers := getter.Providers{
 		getter.Provider{
@@ -274,22 +274,22 @@ func initChartRepo(name, url, cacheDir string) error {
 			New:     getter.NewHTTPGetter,
 		},
 	}
-	
+
 	// Create chart repository
 	chartRepo, err := repo.NewChartRepository(entry, providers)
 	if err != nil {
 		return err
 	}
-	
+
 	// Set cache path
 	chartRepo.CachePath = cacheDir
-	
+
 	// Download the index file
 	_, err = chartRepo.DownloadIndexFile()
 	if err != nil {
 		return fmt.Errorf("failed to download repository index: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -299,23 +299,23 @@ func (b *Builder) copyValuesFiles(charts []utils.Chart, outputDir string) error 
 		if chart.ValuesFile == "" {
 			continue
 		}
-		
+
 		fmt.Printf("Copying values file for chart: %s\n", chart.Name)
-		
+
 		// Read values file
 		valuesData, err := os.ReadFile(chart.ValuesFile)
 		if err != nil {
 			return fmt.Errorf("failed to read values file %s: %w", chart.ValuesFile, err)
 		}
-		
+
 		// Write to output directory
 		outputPath := filepath.Join(outputDir, filepath.Base(chart.ValuesFile))
 		if err := os.WriteFile(outputPath, valuesData, 0644); err != nil {
 			return fmt.Errorf("failed to write values file: %w", err)
 		}
-		
+
 		fmt.Printf("Copied values file: %s\n", outputPath)
 	}
-	
+
 	return nil
-} 
+}

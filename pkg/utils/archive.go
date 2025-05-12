@@ -37,7 +37,7 @@ func CreateTarGz(sourceDir, outputPath string) error {
 			fmt.Fprintf(os.Stderr, "Error closing tar writer: %v\n", err)
 		}
 	}()
-	
+
 	// Walk through the source directory
 	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -49,7 +49,7 @@ func CreateTarGz(sourceDir, outputPath string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create tar header: %w", err)
 		}
-		
+
 		// Update header name to be relative to source directory
 		relPath, err := filepath.Rel(sourceDir, path)
 		if err != nil {
@@ -78,7 +78,7 @@ func CreateTarGz(sourceDir, outputPath string) error {
 				return fmt.Errorf("failed to write file to tar: %w", err)
 			}
 		}
-		
+
 		return nil
 	})
-} 
+}

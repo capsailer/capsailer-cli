@@ -169,14 +169,17 @@ capsailer push --bundle capsailer-bundle.tar.gz --namespace my-registry
 
 # Push artifacts from an unpacked bundle directory
 capsailer push --bundle ./unpacked-bundle --namespace my-registry
+
+# Push to an external registry (like Artifactory)
+capsailer push --bundle capsailer-bundle.tar.gz --external-registry artifactory.example.com --username myuser --password mypassword
 ```
 
 This command handles all the necessary steps:
-1. Finding the registry service in the specified namespace
-2. Setting up a Helm chart repository if needed
+1. Finding the registry service in the specified namespace (or using the provided external registry)
+2. Setting up a Helm chart repository if needed (for internal registry only)
 3. Loading images from the bundle without requiring Docker or skopeo
 4. Pushing images directly to the registry using built-in container registry library
-5. Publishing Helm charts to the chart repository using direct HTTP API calls
+5. Publishing Helm charts to the chart repository using direct HTTP API calls (for internal registry only)
 
 Unlike many similar tools, Capsailer doesn't rely on external dependencies like Docker or skopeo to push images and charts, making it truly self-contained and perfect for air-gapped environments.
 

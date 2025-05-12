@@ -20,4 +20,4 @@ func NewManifest() *Manifest {
 		Images: []string{},
 		Charts: []Chart{},
 	}
-} 
+}

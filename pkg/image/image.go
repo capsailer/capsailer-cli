@@ -82,7 +82,7 @@ func LoadImage(imagePath string, registryHost string) error {
 	// Extract the original tag from the tar filename
 	basename := filepath.Base(imagePath)
 	basename = strings.TrimSuffix(basename, ".tar")
-	
+
 	// Create a tag for the target registry
 	tagName := fmt.Sprintf("%s/%s", registryHost, basename)
 	newRef, err := name.NewTag(tagName)
@@ -174,7 +174,7 @@ func replaceImageRef(imageRef, registryHost string, imageMap map[string]string) 
 	if newRef, ok := imageMap[imageRef]; ok {
 		return newRef
 	}
-	
+
 	// Otherwise, try to construct a new reference based on the original
 	parts := strings.Split(imageRef, "/")
 	baseName := parts[len(parts)-1]
@@ -187,6 +187,6 @@ func sanitizeFilename(imageName string) string {
 	name := strings.ReplaceAll(imageName, "/", "_")
 	name = strings.ReplaceAll(name, ":", "_")
 	name = strings.ReplaceAll(name, "@", "_")
-	
+
 	return name
-} 
+}

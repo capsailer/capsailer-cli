@@ -132,4 +132,4 @@ func (u *Unpacker) Unpack() error {
 
 	fmt.Printf("Bundle extracted to '%s'\n", u.Options.OutputDir)
 	return nil
-} 
+}

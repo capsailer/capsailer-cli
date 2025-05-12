@@ -156,4 +156,4 @@ spec:
 
 	fmt.Printf("Created registry manifest at %s\n", manifestPath)
 	return manifestPath, nil
-} 
+}

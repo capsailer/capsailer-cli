@@ -130,4 +130,4 @@ func InstallChart(chartPath, releaseName, namespace string, values map[string]in
 	}
 
 	return nil
-} 
+}

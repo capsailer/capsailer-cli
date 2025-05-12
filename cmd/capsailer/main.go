@@ -18,7 +18,7 @@ It handles the complete lifecycle:
 2. Package everything into a portable bundle
 3. Deploy in an air-gapped environment with a local registry`,
 	SilenceErrors: true,
-	Version: "0.1.0",
+	Version:       "0.1.0",
 }
 
 var initCmd = &cobra.Command{
@@ -55,17 +55,17 @@ var registryNamespace string
 func init() {
 	// init command flags
 	initCmd.Flags().StringVar(&manifestFile, "manifest", "manifest.yaml", "Path to the manifest file")
-	
+
 	// build command flags
 	buildCmd.Flags().StringVar(&manifestFile, "manifest", "manifest.yaml", "Path to the manifest file")
 	buildCmd.Flags().StringVar(&outputFile, "output", "capsailer-bundle.tar.gz", "Output file path")
-	
+
 	// unpack command flags
 	unpackCmd.Flags().StringVar(&bundleFile, "file", "", "Path to the bundle file")
 	if err := unpackCmd.MarkFlagRequired("file"); err != nil {
 		fmt.Printf("Error marking flag as required: %v\n", err)
 	}
-	
+
 	// Add commands to root
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(buildCmd)

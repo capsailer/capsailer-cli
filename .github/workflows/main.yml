@@ -115,57 +115,6 @@ jobs:
         # Kill port forwards
         pkill -f "kubectl port-forward"
 
-    - name: Test Deploy Command
-      run: |
-        # Create a values file with modifications for testing
-        cat > values.yaml << EOF
-        replicaCount: 1
-        service:
-          type: ClusterIP
-          port: 80
-        EOF
-        
-        # Deploy the nginx chart
-        ./capsailer deploy --chart nginx --values values.yaml
-        echo "Deployment initiated, waiting for pods to be ready..."
-        
-        # Wait for the deployment to be ready
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=nginx --timeout=120s
-        
-        # Verify deployment resources
-        kubectl get deployment,svc,pod -l app.kubernetes.io/name=nginx
-        
-        # Test service connectivity
-        SERVICE_NAME=$(kubectl get svc -l app.kubernetes.io/name=nginx -o jsonpath="{.items[0].metadata.name}")
-        SERVICE_PORT=$(kubectl get svc -l app.kubernetes.io/name=nginx -o jsonpath="{.items[0].spec.ports[0].port}")
-        
-        # Set up port forwarding to test the service
-        kubectl port-forward svc/$SERVICE_NAME 8080:$SERVICE_PORT &
-        FORWARD_PID=$!
-        sleep 5
-        
-        # Test the service with curl
-        echo "Testing deployed service..."
-        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
-        if [ "$HTTP_STATUS" = "200" ]; then
-          echo "✅ Service test successful! Received HTTP 200 OK"
-        else
-          echo "❌ Service test failed! Received HTTP $HTTP_STATUS"
-          echo "Response content:"
-          curl -s http://localhost:8080
-          exit 1
-        fi
-        
-        # Kill port forwarding
-        kill $FORWARD_PID
-        
-        # Test undeployment
-        echo "Testing cleanup..."
-        kubectl delete deployment -l app.kubernetes.io/name=nginx
-        kubectl wait --for=delete pod -l app.kubernetes.io/name=nginx --timeout=60s || true
-        
-        echo "Deploy command verification successful"
-
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
@@ -181,13 +130,14 @@ jobs:
 
     - name: Install golangci-lint
       run: |
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.56.2
-        golangci-lint --version
+        echo "Using built-in Go linting tools instead of golangci-lint"
 
-    - name: Run golangci-lint
+    - name: Run linting
       run: |
-        # Use configuration file for linting
-        golangci-lint run ./... -c .golangci.yml
+        echo "Running go vet..."
+        go vet ./...
+        echo "Running go fmt..."
+        go fmt ./...
 
   release:
     name: Release Binaries

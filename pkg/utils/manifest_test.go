@@ -78,4 +78,4 @@ charts:
 	if manifest.Charts[0].Name != "test-chart" {
 		t.Errorf("Expected chart name to be test-chart, got %s", manifest.Charts[0].Name)
 	}
-} 
+}
