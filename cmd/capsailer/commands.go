@@ -17,10 +17,10 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
-	"github.com/jhennig/capsailer/pkg/build"
-	"github.com/jhennig/capsailer/pkg/deploy"
-	"github.com/jhennig/capsailer/pkg/registry"
-	"github.com/jhennig/capsailer/pkg/utils"
+	"github.com/jlnhnng/capsailer/pkg/build"
+	"github.com/jlnhnng/capsailer/pkg/deploy"
+	"github.com/jlnhnng/capsailer/pkg/registry"
+	"github.com/jlnhnng/capsailer/pkg/utils"
 	"github.com/spf13/cobra"
 )
 

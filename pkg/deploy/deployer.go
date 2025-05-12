@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jhennig/capsailer/pkg/helm"
+	"github.com/jlnhnng/capsailer/pkg/helm"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -214,19 +214,18 @@ func (d *Deployer) chartExistsInChartMuseum(chartName string) (bool, error) {
 // getChartMuseumURL gets the URL for ChartMuseum
 func (d *Deployer) getChartMuseumURL() (string, error) {
 	// Get ChartMuseum service IP
-	var kubectlArgs []string
-	kubectlArgs = append(kubectlArgs, "get", "service", "-n", d.Options.RegistryNamespace, "chartmuseum", "-o", "jsonpath='{.spec.clusterIP}'")
+	kubectlArgs := []string{"get", "service", "-n", d.Options.RegistryNamespace, "chartmuseum", "-o", "jsonpath={.spec.clusterIP}"}
 	if d.Options.KubeconfigPath != "" {
 		kubectlArgs = append(kubectlArgs, "--kubeconfig", d.Options.KubeconfigPath)
 	}
 	
 	cmd := exec.Command("kubectl", kubectlArgs...)
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("failed to get ChartMuseum service: %w", err)
 	}
 	
-	serviceIP := strings.Trim(string(output), "'")
+	serviceIP := strings.TrimSpace(string(output))
 	if serviceIP == "" {
 		return "", fmt.Errorf("ChartMuseum service not found in namespace %s", d.Options.RegistryNamespace)
 	}

@@ -1,0 +1,72 @@
+site_name: Capsailer
+site_description: A CLI tool for delivering Kubernetes applications into air-gapped (offline) environments
+site_author: Capsailer Team
+site_url: https://github.com/jlnhnng/capsailer
+
+repo_name: jlnhnng/capsailer
+repo_url: https://github.com/jlnhnng/capsailer
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: light blue
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - def_list
+  - tables
+  - meta
+  - footnotes
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+    - Manifest File: getting-started/manifest.md
+  - Commands:
+    - Overview: commands/index.md
+    - init: commands/init.md
+    - build: commands/build.md
+    - unpack: commands/unpack.md
+    - deploy: commands/deploy.md
+    - registry: commands/registry.md
+    - push: commands/push.md
+  - Concepts:
+    - Overview: concepts/index.md
+    - Air-Gapped Environments: concepts/air-gapped.md
+    - Bundle Structure: concepts/bundle.md
+    - Registry & Chart Repository: concepts/registry-repo.md
+  - Examples:
+    - Basic Usage: examples/basic.md
+    - Complete Workflow: examples/workflow.md
+    - Custom Values: examples/custom-values.md
+  - Contributing: contributing.md
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jlnhnng/capsailer 
