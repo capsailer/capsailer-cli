@@ -99,7 +99,6 @@ capsailer deploy --chart nginx --values nginx-values.yaml
 - `capsailer init`: Validate and normalize the manifest
 - `capsailer build`: Download and package images and charts
 - `capsailer unpack`: Extract bundle and set up local registry
-- `capsailer deploy`: Deploy a Helm chart in the air-gapped environment
 - `capsailer registry`: Deploy a standalone Docker registry in a Kubernetes cluster
 - `capsailer push`: Push container images to the registry
 
@@ -133,8 +132,14 @@ Here's the complete workflow for air-gapped deployments:
    # Push all images from the bundle to the registry
    ./capsailer push --bundle capsailer-bundle.tar.gz --namespace my-registry
    
-   # Deploy applications using Helm charts from the bundle
-   ./capsailer deploy --chart nginx --values values.yaml
+   # Deploy applications using standard Helm commands
+   # First, add the ChartMuseum as a Helm repository
+   kubectl port-forward -n my-registry svc/chartmuseum 8080:8080 &
+   helm repo add local-charts http://localhost:8080
+   helm repo update
+   
+   # Now install charts
+   helm install my-release local-charts/nginx --values values.yaml
    ```
 
 ### Using the Registry Command

@@ -66,11 +66,33 @@ func (d *Deployer) Deploy() error {
 	// If the chart is not local, we need to download it from ChartMuseum
 	if !isLocal {
 		fmt.Printf("Chart '%s' found in ChartMuseum, downloading...\n", d.Options.ChartName)
-		// Get the ChartMuseum URL
-		repoURL, err := d.getChartMuseumURL()
-		if err != nil {
-			return fmt.Errorf("failed to get ChartMuseum URL: %w", err)
+		
+		// Set up port forwarding to ChartMuseum
+		forwardCmd := exec.Command("kubectl", "port-forward", "-n", d.Options.RegistryNamespace, "svc/chartmuseum", "8080:8080")
+		if d.Options.KubeconfigPath != "" {
+			forwardCmd.Args = append(forwardCmd.Args, "--kubeconfig", d.Options.KubeconfigPath)
 		}
+		
+		// Start port-forwarding in background
+		if err := forwardCmd.Start(); err != nil {
+			return fmt.Errorf("failed to start port-forward to ChartMuseum: %w", err)
+		}
+		
+		// Ensure we stop the port-forwarding when done
+		defer func() {
+			if forwardCmd.Process != nil {
+				if err := forwardCmd.Process.Kill(); err != nil {
+					fmt.Fprintf(os.Stderr, "Error stopping port forwarding: %v\n", err)
+				}
+			}
+		}()
+		
+		// Give port-forwarding time to establish
+		fmt.Println("Setting up port-forwarding to ChartMuseum for download...")
+		time.Sleep(2 * time.Second)
+		
+		// Use localhost URL for chart download
+		repoURL := "http://localhost:8080"
 
 		// Download the chart to a temporary directory
 		tempDir, err := os.MkdirTemp("", "capsailer-chart-")

@@ -85,4 +85,79 @@ You can manually check if your chart is available in ChartMuseum by port-forward
 ```bash
 kubectl port-forward -n capsailer-registry svc/chartmuseum 8080:8080
 curl http://localhost:8080/api/charts
-``` 
+```
+
+# Working with Deployed Charts
+
+Instead of using a built-in deploy command, you can manually install charts from your deployed registry and ChartMuseum using standard Helm commands. This provides more flexibility and control over your deployments.
+
+## Adding the ChartMuseum Repository to Helm
+
+After deploying the registry and pushing your bundle, you need to add the ChartMuseum repository to Helm:
+
+```bash
+# Port-forward the ChartMuseum service
+kubectl port-forward -n capsailer-registry svc/chartmuseum 8080:8080
+
+# In another terminal, add the repository to Helm
+helm repo add capsailer http://localhost:8080
+helm repo update
+```
+
+## Installing Charts from ChartMuseum
+
+Once the repository is added, you can install charts using standard Helm commands:
+
+```bash
+# List available charts
+helm search repo capsailer
+
+# Install a chart
+helm install my-release capsailer/nginx --namespace my-namespace --create-namespace
+
+# Install with custom values
+helm install my-release capsailer/nginx --namespace my-namespace --values my-values.yaml
+```
+
+## Using Images from the Registry
+
+When installing charts, you may need to specify the registry for images:
+
+```bash
+# Port-forward the registry service if needed
+kubectl port-forward -n capsailer-registry svc/registry 5000:5000
+
+# Install chart with custom registry
+helm install my-release capsailer/nginx --namespace my-namespace \
+  --set image.registry=localhost:5000
+```
+
+## Accessing the Registry and ChartMuseum
+
+### Within the Cluster
+
+From inside the cluster, services are available at:
+
+- Registry: `registry.capsailer-registry.svc.cluster.local:5000`
+- ChartMuseum: `chartmuseum.capsailer-registry.svc.cluster.local:8080`
+
+### From Outside the Cluster
+
+Use port-forwarding to access the services:
+
+```bash
+# Access the registry
+kubectl port-forward -n capsailer-registry svc/registry 5000:5000
+
+# Access ChartMuseum
+kubectl port-forward -n capsailer-registry svc/chartmuseum 8080:8080
+```
+
+## Troubleshooting
+
+If you encounter issues:
+
+- Verify the registry and ChartMuseum pods are running: `kubectl get pods -n capsailer-registry`
+- Check logs: `kubectl logs -n capsailer-registry deployment/chartmuseum`
+- Ensure port-forwarding is working correctly
+- Verify the chart exists in ChartMuseum: `curl http://localhost:8080/api/charts` 

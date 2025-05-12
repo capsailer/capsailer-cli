@@ -84,7 +84,7 @@ func runUnpack(bundlePath string) error {
 	
 	fmt.Printf("Registry set up successfully at %s\n", registryURL)
 	fmt.Println("Bundle unpacked and registry ready for use.")
-	fmt.Println("You can now use 'capsailer deploy' to deploy applications.")
+	fmt.Println("You can now use standard Helm commands to deploy applications.")
 	
 	return nil
 }

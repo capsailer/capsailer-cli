@@ -45,20 +45,10 @@ var unpackCmd = &cobra.Command{
 	},
 }
 
-var deployCmd = &cobra.Command{
-	Use:   "deploy",
-	Short: "Deploy a chart in an air-gapped environment",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runDeploy(chartName, valuesFile)
-	},
-}
-
 // Global flags
 var manifestFile string
 var outputFile string
 var bundleFile string
-var chartName string
-var valuesFile string
 var kubeconfigPath string
 var registryNamespace string
 
@@ -76,21 +66,11 @@ func init() {
 		fmt.Printf("Error marking flag as required: %v\n", err)
 	}
 	
-	// deploy command flags
-	deployCmd.Flags().StringVar(&chartName, "chart", "", "Name of the chart to deploy")
-	deployCmd.Flags().StringVar(&valuesFile, "values", "", "Values file for the chart")
-	deployCmd.Flags().StringVar(&kubeconfigPath, "kubeconfig", "", "Path to kubeconfig file")
-	deployCmd.Flags().StringVar(&registryNamespace, "registry-namespace", "capsailer-registry", "Namespace where registry and chartmuseum are deployed")
-	if err := deployCmd.MarkFlagRequired("chart"); err != nil {
-		fmt.Printf("Error marking flag as required: %v\n", err)
-	}
-	
 	// Add commands to root
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(buildCmd)
 	rootCmd.AddCommand(unpackCmd)
-	rootCmd.AddCommand(deployCmd)
-	// registry command added in commands.go
+	// registry and push commands added in commands.go
 }
 
 func main() {
