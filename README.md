@@ -42,18 +42,47 @@ Unlike other solutions, Capsailer handles both container images and Helm charts 
 
 ## Prerequisites
 
-- Go 1.20 or later
 - Kubernetes cluster (for deployment)
 - Admin access to the cluster
 
 ## Installation
+
+### Download Pre-built Release (Recommended)
+
+The easiest way to install Capsailer is to download a pre-built release from the [GitHub Releases page](https://github.com/jlnhnng/capsailer/releases).
+
+```bash
+# For Linux (amd64)
+curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-amd64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+
+# For macOS (Intel)
+curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-amd64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+
+# For macOS (Apple Silicon)
+curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-arm64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+```
+
+For Windows, download the ZIP file from the [releases page](https://github.com/jlnhnng/capsailer/releases/latest).
+
+### Build from Source
+
+If you prefer to build from source:
 
 ```bash
 # Clone the repository
 git clone https://github.com/jlnhnng/capsailer.git
 cd capsailer
 
-# Build the binary
+# Build the binary (requires Go 1.20 or later)
 go build -o capsailer cmd/capsailer/main.go
 
 # Add to your PATH

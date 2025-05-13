@@ -2,7 +2,51 @@
 
 There are several ways to install Capsailer on your system.
 
+## Download Pre-built Releases
+
+The easiest way to install Capsailer is to download a pre-built release from the [GitHub Releases page](https://github.com/jlnhnng/capsailer/releases).
+
+### Linux
+
+```bash
+# For amd64 architecture
+curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-amd64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+
+# For arm64 architecture
+curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-arm64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+```
+
+### macOS
+
+```bash
+# For Intel Macs
+curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-amd64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+
+# For Apple Silicon (M1/M2) Macs
+curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-arm64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+```
+
+### Windows
+
+1. Download the Windows binary from the [GitHub Releases page](https://github.com/jlnhnng/capsailer/releases/latest)
+2. Extract the ZIP file
+3. Add the extracted directory to your PATH
+
 ## Building from Source
+
+If you prefer to build from source:
 
 ```bash
 # Clone the repository
@@ -20,9 +64,9 @@ mv capsailer /usr/local/bin/
 
 Capsailer requires:
 
-- Go 1.20 or later (for building from source)
 - Kubernetes cluster (for deployment)
 - Admin access to the cluster
+- Go 1.20 or later (only if building from source)
 
 ## Verifying Installation
 

@@ -4,23 +4,37 @@ This guide will help you get started with Capsailer quickly.
 
 ## Prerequisites
 
-- Go 1.20 or later
 - Kubernetes cluster (for deployment)
 - Admin access to the cluster
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/jlnhnng/capsailer.git
-cd capsailer
+The quickest way to get started is to download a pre-built release:
 
-# Build the binary
-go build -o capsailer cmd/capsailer/main.go
+```bash
+# For Linux (amd64)
+curl -Lo capsailer https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-amd64.tar.gz
+tar -xzf capsailer-linux-amd64.tar.gz
+chmod +x capsailer
+
+# For macOS (Intel)
+curl -Lo capsailer https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-amd64.tar.gz
+tar -xzf capsailer-darwin-amd64.tar.gz
+chmod +x capsailer
+
+# For macOS (Apple Silicon)
+curl -Lo capsailer https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-arm64.tar.gz
+tar -xzf capsailer-darwin-arm64.tar.gz
+chmod +x capsailer
+
+# For Windows
+# Download from https://github.com/jlnhnng/capsailer/releases/latest
 
 # Add to your PATH
 mv capsailer /usr/local/bin/
 ```
+
+You can find all available releases at: https://github.com/jlnhnng/capsailer/releases
 
 ## Quick Start
 
