@@ -28,8 +28,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize and validate a manifest file",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		manifestPath, _ := cmd.Flags().GetString("manifest")
-		return runInit(manifestPath)
+		return runInit(manifestFile)
 	},
 }
 
@@ -37,11 +36,7 @@ var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Build a deployable bundle from a manifest",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		manifestPath, _ := cmd.Flags().GetString("manifest")
-		outputPath, _ := cmd.Flags().GetString("output")
-		rewriteImageRefs, _ := cmd.Flags().GetBool("rewrite-image-references")
-		registryURL, _ := cmd.Flags().GetString("registry-url")
-		return runBuild(manifestPath, outputPath, rewriteImageRefs, registryURL)
+		return runBuild(manifestFile, outputFile, rewriteImageRefs, registryURL)
 	},
 }
 
@@ -49,8 +44,7 @@ var unpackCmd = &cobra.Command{
 	Use:   "unpack",
 	Short: "Unpack a bundle in an air-gapped environment",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		bundlePath, _ := cmd.Flags().GetString("file")
-		return runUnpack(bundlePath)
+		return runUnpack(bundleFile)
 	},
 }
 
@@ -60,19 +54,21 @@ var outputFile string
 var bundleFile string
 var kubeconfigPath string
 var registryNamespace string
+var rewriteImageRefs bool
+var registryURL string
 
 func init() {
 	// init command flags
-	initCmd.Flags().StringP("manifest", "m", "manifest.yaml", "Path to the manifest file")
+	initCmd.Flags().StringVar(&manifestFile, "manifest", "manifest.yaml", "Path to the manifest file")
 
 	// build command flags
-	buildCmd.Flags().StringP("manifest", "m", "manifest.yaml", "Path to the manifest file")
-	buildCmd.Flags().StringP("output", "o", "capsailer-bundle.tar.gz", "Output file path")
-	buildCmd.Flags().Bool("rewrite-image-references", false, "Rewrite image references in Helm charts to use a private registry")
-	buildCmd.Flags().String("registry-url", "", "URL of the private registry to use when rewriting image references")
+	buildCmd.Flags().StringVar(&manifestFile, "manifest", "manifest.yaml", "Path to the manifest file")
+	buildCmd.Flags().StringVar(&outputFile, "output", "capsailer-bundle.tar.gz", "Output file path")
+	buildCmd.Flags().BoolVar(&rewriteImageRefs, "rewrite-image-references", false, "Rewrite image references in Helm charts to use a private registry")
+	buildCmd.Flags().StringVar(&registryURL, "registry-url", "", "URL of the private registry to use when rewriting image references")
 
 	// unpack command flags
-	unpackCmd.Flags().StringP("file", "f", "", "Path to the bundle file")
+	unpackCmd.Flags().StringVar(&bundleFile, "file", "", "Path to the bundle file")
 	if err := unpackCmd.MarkFlagRequired("file"); err != nil {
 		fmt.Printf("Error marking flag as required: %v\n", err)
 	}
