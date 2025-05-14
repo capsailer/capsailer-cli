@@ -545,6 +545,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#image-reference-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image Reference Analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#options" class="md-nav__link">
     <span class="md-ellipsis">
       Options
@@ -765,6 +774,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#image-reference-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image Reference Analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#options" class="md-nav__link">
     <span class="md-ellipsis">
       Options
@@ -830,7 +848,12 @@
 <li>Checks that all required fields are present</li>
 <li>Normalizes image references (adds <code>latest</code> tag if missing)</li>
 <li>Validates that chart references are properly formatted</li>
+<li>Analyzes Helm charts for container image references</li>
+<li>Warns about potential missing images in the manifest</li>
 </ol>
+<h2 id="image-reference-analysis">Image Reference Analysis</h2>
+<p>When you run the <code>init</code> command with a manifest that includes Helm charts, Capsailer will provide information about the image reference rewriting feature and warn you about potential missing images. This helps ensure that all required images are included in your manifest.</p>
+<p>For example, if you have a Redis chart in your manifest but no Redis image, the <code>init</code> command will suggest adding the Redis image to your manifest.</p>
 <h2 id="options">Options</h2>
 <table>
 <thead>
