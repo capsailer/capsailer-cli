@@ -21,7 +21,7 @@ It handles the complete lifecycle:
 2. Package everything into a portable bundle
 3. Deploy in an air-gapped environment with a local registry`,
 	SilenceErrors: true,
-	Version:       "0.1.0",
+	Version:       "0.2.0",
 }
 
 var initCmd = &cobra.Command{
