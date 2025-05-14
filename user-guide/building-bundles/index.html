@@ -440,6 +440,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#including-operator-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Including Operator Images
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Including Operator Images">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tips-for-operator-bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips for Operator Bundles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bundle-contents" class="md-nav__link">
     <span class="md-ellipsis">
       Bundle Contents
@@ -792,6 +816,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#including-operator-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      Including Operator Images
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Including Operator Images">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tips-for-operator-bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips for Operator Bundles
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bundle-contents" class="md-nav__link">
     <span class="md-ellipsis">
       Bundle Contents
@@ -875,6 +923,38 @@
 - Rewrite all image references in Helm charts to use your private registry
 - Package everything into a portable bundle</p>
 <p>When you deploy these charts in your air-gapped environment, they will automatically use images from your private registry without requiring any manual modifications.</p>
+<h2 id="including-operator-images">Including Operator Images</h2>
+<p>When building bundles that include Kubernetes operators, you need to consider both the operator images themselves and the images referenced in the operator's Custom Resources (CRs):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Example manifest.yaml for an operator</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">images</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="c1"># The operator image itself</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">quay.io/example/postgres-operator:v1.10.0</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="c1"># Images that the operator will deploy via CRs</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/postgres:14.5</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/postgres:14.6</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.io/postgres-exporter:0.10.0</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="nt">charts</span><span class="p">:</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres-operator</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://example.com/charts</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.10.0</span>
+</code></pre></div>
+<h3 id="tips-for-operator-bundles">Tips for Operator Bundles</h3>
+<ol>
+<li>
+<p><strong>Identify All Required Images</strong>: Review the operator documentation to identify all container images that might be deployed by the operator's CRs.</p>
+</li>
+<li>
+<p><strong>Include Related Tools</strong>: Many operators deploy additional components like exporters, sidecars, or init containers. Make sure to include these images in your manifest.</p>
+</li>
+<li>
+<p><strong>Version Consistency</strong>: Ensure that the versions of the operator and the images it deploys are compatible with each other.</p>
+</li>
+<li>
+<p><strong>Check CR Templates</strong>: If the operator's Helm chart includes CR templates, Capsailer's image reference rewriting will automatically update those references.</p>
+</li>
+</ol>
 <h2 id="bundle-contents">Bundle Contents</h2>
 <p>A Capsailer bundle contains:</p>
 <ul>
@@ -885,7 +965,7 @@
 </ul>
 <h2 id="examining-a-bundle">Examining a Bundle</h2>
 <p>You can examine the contents of a bundle without extracting it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>capsailer<span class="w"> </span>inspect<span class="w"> </span>--bundle<span class="w"> </span>capsailer-bundle.tar.gz
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>capsailer<span class="w"> </span>inspect<span class="w"> </span>--bundle<span class="w"> </span>capsailer-bundle.tar.gz
 </code></pre></div>
 <p>This will show you a list of all the images and charts included in the bundle.</p>
 <h2 id="bundle-size-considerations">Bundle Size Considerations</h2>
