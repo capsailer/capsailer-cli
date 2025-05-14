@@ -53,6 +53,37 @@ This will:
 
 When you deploy these charts in your air-gapped environment, they will automatically use images from your private registry without requiring any manual modifications.
 
+## Including Operator Images
+
+When building bundles that include Kubernetes operators, you need to consider both the operator images themselves and the images referenced in the operator's Custom Resources (CRs):
+
+```yaml
+# Example manifest.yaml for an operator
+images:
+  # The operator image itself
+  - quay.io/example/postgres-operator:v1.10.0
+  
+  # Images that the operator will deploy via CRs
+  - docker.io/postgres:14.5
+  - docker.io/postgres:14.6
+  - docker.io/postgres-exporter:0.10.0
+
+charts:
+  - name: postgres-operator
+    repo: https://example.com/charts
+    version: 1.10.0
+```
+
+### Tips for Operator Bundles
+
+1. **Identify All Required Images**: Review the operator documentation to identify all container images that might be deployed by the operator's CRs.
+
+2. **Include Related Tools**: Many operators deploy additional components like exporters, sidecars, or init containers. Make sure to include these images in your manifest.
+
+3. **Version Consistency**: Ensure that the versions of the operator and the images it deploys are compatible with each other.
+
+4. **Check CR Templates**: If the operator's Helm chart includes CR templates, Capsailer's image reference rewriting will automatically update those references.
+
 ## Bundle Contents
 
 A Capsailer bundle contains:

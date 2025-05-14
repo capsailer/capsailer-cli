@@ -26,6 +26,92 @@ This will:
 
 When you deploy these charts in your air-gapped environment, they will automatically use images from your private registry without requiring any manual modifications.
 
+## Handling Kubernetes Operators
+
+Kubernetes operators often require special handling in air-gapped environments because:
+
+1. Operators typically reference container images in their Custom Resources (CRs)
+2. These image references need to be rewritten to point to your private registry
+
+### Operator Image References in CRs
+
+When deploying operators, you'll often need to specify container images in the Custom Resource (CR) definitions. For example, a database operator might require you to specify the database image in its CR:
+
+```yaml
+apiVersion: database.example.com/v1
+kind: Database
+metadata:
+  name: my-database
+spec:
+  # Image reference that needs to be rewritten
+  image: docker.io/postgres:14.5
+  replicas: 3
+```
+
+### Strategies for Handling Operators
+
+1. **Include Operator Images in Your Manifest**:
+   Make sure to include all images required by the operator in your Capsailer manifest.
+
+2. **Manually Update CRs**:
+   After deploying the operator, update the image references in your CRs to point to your private registry:
+
+   ```yaml
+   spec:
+     # Updated to use private registry
+     image: registry.local:5000/postgres:14.5
+   ```
+
+3. **Use Helm Values for Operators**:
+   If deploying operators via Helm, use values files to override image references:
+
+   ```yaml
+   # values.yaml
+   operator:
+     image: registry.local:5000/operator:v1.0.0
+   
+   # Images used by the operator's CRs
+   defaultImages:
+     postgres: registry.local:5000/postgres:14.5
+     redis: registry.local:5000/redis:7.0
+   ```
+
+4. **Leverage Capsailer's Image Rewriting**:
+   If your operator is deployed via a Helm chart that includes CR templates, Capsailer's image reference rewriting feature will automatically update those references.
+
+### Example: PostgreSQL Operator
+
+```yaml
+# In your manifest.yaml
+images:
+  - postgres:14.5
+  - postgres-operator:v1.10.0
+  # Any additional images the operator might need
+
+charts:
+  - name: postgres-operator
+    repo: https://example.com/charts
+    version: 1.10.0
+```
+
+After deploying with Capsailer:
+
+```bash
+# Deploy the operator
+helm install postgres-operator local-charts/postgres-operator
+
+# Create a database CR with the rewritten image reference
+cat <<EOF | kubectl apply -f -
+apiVersion: database.example.com/v1
+kind: Database
+metadata:
+  name: my-database
+spec:
+  image: registry.local:5000/postgres:14.5
+  replicas: 3
+EOF
+```
+
 ## Transferring the Bundle
 
 After building your bundle in a connected environment, you need to transfer it to the air-gapped environment:
