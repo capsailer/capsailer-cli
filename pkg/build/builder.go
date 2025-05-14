@@ -11,6 +11,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
+	"github.com/jlnhnng/capsailer/pkg/helm"
 	"github.com/jlnhnng/capsailer/pkg/utils"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
@@ -18,9 +19,11 @@ import (
 
 // BuildOptions defines options for the build process
 type BuildOptions struct {
-	ManifestPath string
-	OutputPath   string
-	Parallel     int
+	ManifestPath          string
+	OutputPath            string
+	Parallel              int
+	RewriteImageReferences bool
+	RegistryURL           string
 }
 
 // Builder handles the build process
@@ -76,6 +79,18 @@ func (b *Builder) Build() error {
 	fmt.Println("Downloading charts...")
 	if err := b.downloadCharts(manifest.Charts, chartsDir); err != nil {
 		return fmt.Errorf("failed to download charts: %w", err)
+	}
+
+	// Rewrite image references in charts if requested
+	if b.options.RewriteImageReferences {
+		if b.options.RegistryURL == "" {
+			return fmt.Errorf("registry URL is required when rewriting image references")
+		}
+
+		fmt.Println("Rewriting image references in Helm charts...")
+		if err := b.rewriteImageReferencesInCharts(manifest.Charts, chartsDir); err != nil {
+			return fmt.Errorf("failed to rewrite image references: %w", err)
+		}
 	}
 
 	// Copy values files
@@ -317,5 +332,31 @@ func (b *Builder) copyValuesFiles(charts []utils.Chart, outputDir string) error 
 		fmt.Printf("Copied values file: %s\n", outputPath)
 	}
 
+	return nil
+}
+
+// rewriteImageReferencesInCharts rewrites image references in all charts
+func (b *Builder) rewriteImageReferencesInCharts(charts []utils.Chart, chartsDir string) error {
+	for _, chart := range charts {
+		fmt.Printf("Rewriting image references in chart: %s\n", chart.Name)
+		
+		// Find the chart file
+		chartPath := filepath.Join(chartsDir, fmt.Sprintf("%s-%s.tgz", chart.Name, chart.Version))
+		if _, err := os.Stat(chartPath); os.IsNotExist(err) {
+			// Try alternative naming patterns
+			pattern := filepath.Join(chartsDir, fmt.Sprintf("%s-*.tgz", chart.Name))
+			matches, err := filepath.Glob(pattern)
+			if err != nil || len(matches) == 0 {
+				return fmt.Errorf("chart file not found for %s-%s", chart.Name, chart.Version)
+			}
+			chartPath = matches[0]
+		}
+		
+		// Rewrite image references
+		if err := helm.RewriteImageReferences(chartPath, b.options.RegistryURL); err != nil {
+			return fmt.Errorf("failed to rewrite image references in chart %s: %w", chart.Name, err)
+		}
+	}
+	
 	return nil
 }
