@@ -16,7 +16,8 @@ The `build` command performs the following actions:
 2. Downloads all container images specified in the manifest
 3. Saves the images as OCI artifacts
 4. Downloads all Helm charts specified in the manifest
-5. Packages everything into a single, portable archive file
+5. Optionally rewrites image references in Helm charts to use a private registry
+6. Packages everything into a single, portable archive file
 
 ## Options
 
@@ -24,6 +25,8 @@ The `build` command performs the following actions:
 |--------|-------------|
 | `--manifest` | Path to the manifest file (required) |
 | `--output` | Path to write the bundle file (required) |
+| `--rewrite-image-references` | Rewrite image references in Helm charts to use a private registry |
+| `--registry-url` | URL of the private registry to use when rewriting image references |
 | `--username` | Username for authentication with private registries |
 | `--password` | Password for authentication with private registries |
 | `--kubeconfig` | Path to the kubeconfig file |
@@ -35,6 +38,9 @@ The `build` command performs the following actions:
 ```bash
 # Build a bundle from a manifest
 capsailer build --manifest manifest.yaml --output capsailer-bundle.tar.gz
+
+# Build a bundle with image reference rewriting
+capsailer build --manifest manifest.yaml --output capsailer-bundle.tar.gz --rewrite-image-references --registry-url registry.local:5000
 
 # Build a bundle with authentication for private registries
 capsailer build --manifest manifest.yaml --output capsailer-bundle.tar.gz --username myuser --password mypassword

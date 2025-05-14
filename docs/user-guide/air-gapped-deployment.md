@@ -10,6 +10,22 @@ Deploying in an air-gapped environment involves three main steps:
 2. Setting up a local registry and chart repository
 3. Pushing images and charts from the bundle to the registry
 
+## Rewriting Image References
+
+When deploying applications in air-gapped environments, you need to ensure that container image references in Helm charts point to your private registry. Capsailer provides a built-in feature to automatically rewrite these references during the build process:
+
+```bash
+# Build a bundle with image reference rewriting
+capsailer build --manifest manifest.yaml --output bundle.tar.gz --rewrite-image-references --registry-url registry.local:5000
+```
+
+This will:
+- Download all images and charts specified in the manifest
+- Rewrite all image references in Helm charts to use your private registry
+- Package everything into a portable bundle
+
+When you deploy these charts in your air-gapped environment, they will automatically use images from your private registry without requiring any manual modifications.
+
 ## Transferring the Bundle
 
 After building your bundle in a connected environment, you need to transfer it to the air-gapped environment:
@@ -57,6 +73,8 @@ helm repo update
 helm install my-release local-charts/nginx --values values.yaml
 ```
 
+Since the image references in the charts have been rewritten during the build process (if you used the `--rewrite-image-references` flag), the deployed applications will automatically use images from your private registry.
+
 ## Registry Options
 
 You can customize the registry deployment:
@@ -78,8 +96,8 @@ Here's the complete workflow for air-gapped deployments:
    # Validate the manifest
    capsailer init --manifest manifest.yaml
    
-   # Build the bundle
-   capsailer build --manifest manifest.yaml --output capsailer-bundle.tar.gz
+   # Build the bundle with image reference rewriting
+   capsailer build --manifest manifest.yaml --output capsailer-bundle.tar.gz --rewrite-image-references --registry-url registry.local:5000
    ```
 
 2. **Transfer to air-gapped environment**:
@@ -100,5 +118,5 @@ Here's the complete workflow for air-gapped deployments:
    kubectl port-forward -n my-registry svc/chartmuseum 8080:8080 &
    helm repo add local-charts http://localhost:8080
    helm repo update
-   helm install my-release local-charts/nginx --values values.yaml
+   helm install my-release local-charts/nginx
    ``` 

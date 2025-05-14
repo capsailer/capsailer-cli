@@ -16,6 +16,14 @@ The `init` command performs the following actions:
 2. Checks that all required fields are present
 3. Normalizes image references (adds `latest` tag if missing)
 4. Validates that chart references are properly formatted
+5. Analyzes Helm charts for container image references
+6. Warns about potential missing images in the manifest
+
+## Image Reference Analysis
+
+When you run the `init` command with a manifest that includes Helm charts, Capsailer will provide information about the image reference rewriting feature and warn you about potential missing images. This helps ensure that all required images are included in your manifest.
+
+For example, if you have a Redis chart in your manifest but no Redis image, the `init` command will suggest adding the Redis image to your manifest.
 
 ## Options
 

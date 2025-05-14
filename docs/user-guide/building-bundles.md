@@ -19,7 +19,8 @@ When you run the `build` command, Capsailer:
 1. Downloads all container images specified in the manifest
 2. Saves the images as OCI artifacts
 3. Downloads all Helm charts specified in the manifest
-4. Packages everything into a single, portable archive file
+4. Optionally rewrites image references in Helm charts to use a private registry
+5. Packages everything into a single, portable archive file
 
 ## Build Options
 
@@ -35,6 +36,22 @@ capsailer build --manifest manifest.yaml --username myuser --password mypassword
 # Use a specific kubeconfig file
 capsailer build --manifest manifest.yaml --kubeconfig /path/to/kubeconfig
 ```
+
+## Rewriting Image References
+
+For air-gapped deployments, you often need to rewrite container image references in Helm charts to point to your private registry. Capsailer can do this automatically during the build process:
+
+```bash
+# Build a bundle with image reference rewriting
+capsailer build --manifest manifest.yaml --output bundle.tar.gz --rewrite-image-references --registry-url registry.local:5000
+```
+
+This will:
+- Download all images and charts specified in the manifest
+- Rewrite all image references in Helm charts to use your private registry
+- Package everything into a portable bundle
+
+When you deploy these charts in your air-gapped environment, they will automatically use images from your private registry without requiring any manual modifications.
 
 ## Bundle Contents
 
