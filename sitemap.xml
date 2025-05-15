@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/contributing/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/contributing/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/examples/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/examples/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/getting-started/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/getting-started/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/commands/build/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/commands/build/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/commands/init/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/commands/init/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/commands/overview/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/commands/overview/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/commands/push/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/commands/push/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/commands/registry/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/commands/registry/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/commands/unpack/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/commands/unpack/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/user-guide/air-gapped-deployment/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/user-guide/air-gapped-deployment/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/user-guide/building-bundles/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/user-guide/building-bundles/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/user-guide/creating-manifests/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/user-guide/creating-manifests/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://jlnhnng.github.io/capsailer/user-guide/installation/</loc>
+         <loc>https://capsailer.github.io/capsailer-cli/user-guide/installation/</loc>
          <lastmod>2025-05-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
