@@ -1,18 +1,36 @@
-site_name: Capsailer
-site_description: CLI tool for delivering Kubernetes applications into air-gapped environments
+site_name: Documentation
+site_description: Documentation for capsailer, CLI tool for delivering Kubernetes applications into air-gapped environments
+repo_name: capsailer-cli
 repo_url: https://github.com/jlnhnng/capsailer
 site_url: https://jlnhnng.github.io/capsailer/
+copyright: Copyright &copy; 2025 jlnhnng
 theme:
   name: material
+  logo: assets/images/logo.png
+  favicon: assets/images/favicon.ico
   palette:
-    primary: blue
-    accent: blue
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: blue
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: blue
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
   features:
     - navigation.instant
     - navigation.tracking
-    - navigation.expand
     - navigation.indexes
     - content.code.copy
+
+extra:
+  generator: false
 
 markdown_extensions:
   - pymdownx.highlight:

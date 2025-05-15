@@ -279,38 +279,6 @@ When deploying a registry in an air-gapped environment, Capsailer offers several
 
 Capsailer will automatically detect if you're in an air-gapped environment and provide appropriate guidance.
 
-### Rewriting Image References in Helm Charts
-
-When deploying applications in air-gapped environments, you often need to rewrite container image references in Helm charts to point to your private registry. Capsailer provides built-in support for this:
-
-1. **Analyzing Charts for Image References**:
-   ```bash
-   # Analyze your manifest to detect image references in Helm charts
-   capsailer init --manifest manifest.yaml
-   ```
-   This will show you which images are referenced in your Helm charts and warn you about any images that are referenced but not included in your manifest.
-
-2. **Rewriting Image References During Build**:
-   ```bash
-   # Build a bundle with rewritten image references
-   capsailer build --manifest manifest.yaml --output bundle.tar.gz --rewrite-image-references --registry-url registry.local:5000
-   ```
-   This will:
-   - Download all images and charts specified in the manifest
-   - Rewrite all image references in Helm charts to use your private registry
-   - Package everything into a portable bundle
-
-3. **Deploying Charts with Rewritten References**:
-   After pushing the bundle to your air-gapped environment, you can deploy the charts directly without any additional configuration:
-   ```bash
-   # Push all images and charts to the registry
-   capsailer push --bundle capsailer-bundle.tar.gz --namespace my-registry
-   
-   # Deploy applications using standard Helm commands
-   helm install my-release local-charts/nginx
-   ```
-   The deployed applications will automatically use images from your private registry.
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
