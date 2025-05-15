@@ -1,6 +1,6 @@
-# Getting Started
+# Getting Started with Capsailer
 
-This guide will help you get started with Capsailer quickly.
+This guide will help you get started with Capsailer for air-gapped Kubernetes deployments.
 
 ## Prerequisites
 
@@ -9,32 +9,45 @@ This guide will help you get started with Capsailer quickly.
 
 ## Installation
 
-The quickest way to get started is to download a pre-built release:
+### Download Pre-built Binary
+
+You can download pre-built binaries for your platform:
+
+#### Linux (amd64)
 
 ```bash
-# For Linux (amd64)
-curl -Lo capsailer https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-amd64.tar.gz
+curl -Lo capsailer https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-linux-amd64.tar.gz
 tar -xzf capsailer-linux-amd64.tar.gz
 chmod +x capsailer
-
-# For macOS (Intel)
-curl -Lo capsailer https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-amd64.tar.gz
-tar -xzf capsailer-darwin-amd64.tar.gz
-chmod +x capsailer
-
-# For macOS (Apple Silicon)
-curl -Lo capsailer https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-arm64.tar.gz
-tar -xzf capsailer-darwin-arm64.tar.gz
-chmod +x capsailer
-
-# For Windows
-# Download from https://github.com/jlnhnng/capsailer/releases/latest
-
-# Add to your PATH
-mv capsailer /usr/local/bin/
 ```
 
-You can find all available releases at: https://github.com/jlnhnng/capsailer/releases
+#### macOS (Intel)
+
+```bash
+curl -Lo capsailer https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-amd64.tar.gz
+tar -xzf capsailer-darwin-amd64.tar.gz
+chmod +x capsailer
+```
+
+#### macOS (Apple Silicon)
+
+```bash
+curl -Lo capsailer https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-arm64.tar.gz
+tar -xzf capsailer-darwin-arm64.tar.gz
+chmod +x capsailer
+```
+
+#### Windows
+
+Download from https://github.com/capsailer/capsailer-cli/releases/latest
+
+### Move to PATH
+
+```bash
+sudo mv capsailer /usr/local/bin/
+```
+
+You can find all available releases at: https://github.com/capsailer/capsailer-cli/releases
 
 ## Quick Start
 

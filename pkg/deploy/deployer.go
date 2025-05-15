@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jlnhnng/capsailer/pkg/helm"
+	"github.com/capsailer/capsailer-cli/pkg/helm"
 	yaml "gopkg.in/yaml.v3"
 )
 

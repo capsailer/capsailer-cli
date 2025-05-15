@@ -18,7 +18,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
-	"github.com/jlnhnng/capsailer/pkg/registry"
+	"github.com/capsailer/capsailer-cli/pkg/registry"
 	"github.com/spf13/cobra"
 )
 

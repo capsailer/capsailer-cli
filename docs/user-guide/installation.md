@@ -1,38 +1,46 @@
 # Installation
 
-There are several ways to install Capsailer on your system.
+This guide covers different ways to install Capsailer.
 
-## Download Pre-built Releases
+## Pre-built Binaries
 
-The easiest way to install Capsailer is to download a pre-built release from the [GitHub Releases page](https://github.com/jlnhnng/capsailer/releases).
+The easiest way to install Capsailer is to download a pre-built release from the [GitHub Releases page](https://github.com/capsailer/capsailer-cli/releases).
 
-### Linux
+### Linux (amd64)
 
 ```bash
-# For amd64 architecture
-curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-amd64.tar.gz
-tar -xzf capsailer.tar.gz
-chmod +x capsailer
-sudo mv capsailer /usr/local/bin/
-
-# For arm64 architecture
-curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-arm64.tar.gz
+# Download the binary
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-linux-amd64.tar.gz
 tar -xzf capsailer.tar.gz
 chmod +x capsailer
 sudo mv capsailer /usr/local/bin/
 ```
 
-### macOS
+### Linux (arm64)
 
 ```bash
-# For Intel Macs
-curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-amd64.tar.gz
+# Download the binary
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-linux-arm64.tar.gz
 tar -xzf capsailer.tar.gz
 chmod +x capsailer
 sudo mv capsailer /usr/local/bin/
+```
 
-# For Apple Silicon (M1/M2) Macs
-curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-arm64.tar.gz
+### macOS (Intel)
+
+```bash
+# Download the binary
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-amd64.tar.gz
+tar -xzf capsailer.tar.gz
+chmod +x capsailer
+sudo mv capsailer /usr/local/bin/
+```
+
+### macOS (Apple Silicon)
+
+```bash
+# Download the binary
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-arm64.tar.gz
 tar -xzf capsailer.tar.gz
 chmod +x capsailer
 sudo mv capsailer /usr/local/bin/
@@ -40,7 +48,7 @@ sudo mv capsailer /usr/local/bin/
 
 ### Windows
 
-1. Download the Windows binary from the [GitHub Releases page](https://github.com/jlnhnng/capsailer/releases/latest)
+1. Download the Windows binary from the [GitHub Releases page](https://github.com/capsailer/capsailer-cli/releases/latest)
 2. Extract the ZIP file
 3. Add the extracted directory to your PATH
 
@@ -50,14 +58,14 @@ If you prefer to build from source:
 
 ```bash
 # Clone the repository
-git clone https://github.com/jlnhnng/capsailer.git
-cd capsailer
+git clone https://github.com/capsailer/capsailer-cli.git
+cd capsailer-cli
 
 # Build the binary
 go build -o capsailer cmd/capsailer/main.go
 
 # Add to your PATH
-mv capsailer /usr/local/bin/
+sudo mv capsailer /usr/local/bin/
 ```
 
 ## Prerequisites

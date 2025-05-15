@@ -1,4 +1,4 @@
-module github.com/jlnhnng/capsailer
+module github.com/capsailer/capsailer-cli
 
 go 1.23.0
 

@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jlnhnng/capsailer/pkg/build"
-	"github.com/jlnhnng/capsailer/pkg/utils"
+	"github.com/capsailer/capsailer-cli/pkg/build"
+	"github.com/capsailer/capsailer-cli/pkg/utils"
 	"github.com/spf13/cobra"
 )
 

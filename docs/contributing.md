@@ -4,8 +4,14 @@ Contributions to Capsailer are welcome! This page provides guidelines for contri
 
 ## Getting Started
 
+### Fork and Clone the Repository
+
 1. Fork the repository on GitHub
-2. Clone your fork locally
+2. Clone your fork:
+```bash
+git clone https://github.com/capsailer/capsailer-cli.git
+cd capsailer-cli
+```
 3. Set up the development environment
 4. Make your changes
 5. Submit a pull request
@@ -16,7 +22,7 @@ To set up a development environment:
 
 ```bash
 # Clone the repository
-git clone https://github.com/jlnhnng/capsailer.git
+git clone https://github.com/capsailer/capsailer-cli.git
 cd capsailer
 
 # Install dependencies
@@ -72,4 +78,4 @@ Feature requests are welcome. Please provide:
 
 ## License
 
-By contributing to Capsailer, you agree that your contributions will be licensed under the project's [MIT License](https://github.com/jlnhnng/capsailer/blob/main/LICENSE). 
+By contributing to Capsailer, you agree that your contributions will be licensed under the project's [MIT License](https://github.com/capsailer/capsailer-cli/blob/main/LICENSE). 

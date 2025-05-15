@@ -22,30 +22,30 @@ Capsailer packages Helm charts and container images into a portable archive that
 
 ```bash
 # Linux (amd64)
-curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-linux-amd64.tar.gz
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-linux-amd64.tar.gz
 tar -xzf capsailer.tar.gz
 chmod +x capsailer
 sudo mv capsailer /usr/local/bin/
 
 # macOS (Intel)
-curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-amd64.tar.gz
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-amd64.tar.gz
 tar -xzf capsailer.tar.gz
 chmod +x capsailer
 sudo mv capsailer /usr/local/bin/
 
 # macOS (Apple Silicon)
-curl -Lo capsailer.tar.gz https://github.com/jlnhnng/capsailer/releases/latest/download/capsailer-darwin-arm64.tar.gz
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-arm64.tar.gz
 tar -xzf capsailer.tar.gz
 chmod +x capsailer
 sudo mv capsailer /usr/local/bin/
 ```
 
-For Windows, download from the [releases page](https://github.com/jlnhnng/capsailer/releases/latest).
+For Windows, download from the [releases page](https://github.com/capsailer/capsailer-cli/releases/latest).
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/jlnhnng/capsailer.git
+git clone https://github.com/capsailer/capsailer-cli.git
 cd capsailer
 go build -o capsailer cmd/capsailer/main.go
 ```

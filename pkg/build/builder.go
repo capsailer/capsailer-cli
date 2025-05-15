@@ -11,8 +11,8 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
-	"github.com/jlnhnng/capsailer/pkg/helm"
-	"github.com/jlnhnng/capsailer/pkg/utils"
+	"github.com/capsailer/capsailer-cli/pkg/helm"
+	"github.com/capsailer/capsailer-cli/pkg/utils"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
 )

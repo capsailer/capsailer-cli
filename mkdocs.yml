@@ -1,9 +1,9 @@
 site_name: Documentation
 site_description: Documentation for capsailer, CLI tool for delivering Kubernetes applications into air-gapped environments
 repo_name: capsailer-cli
-repo_url: https://github.com/jlnhnng/capsailer
-site_url: https://jlnhnng.github.io/capsailer/
-copyright: Copyright &copy; 2025 jlnhnng
+repo_url: https://github.com/capsailer/capsailer-cli
+site_url: https://capsailer.github.io/capsailer-cli/
+copyright: Copyright &copy; 2025 capsailer
 theme:
   name: material
   logo: assets/images/logo.png
