@@ -90,7 +90,6 @@ func createRegistryManifest(opts RegistryOptions) (string, error) {
 	// Define the manifest content
 	var volumeSection string
 	var volumeMountSection string
-	var chartVolumeSection string
 	var chartVolumeMountSection string
 	
 	if opts.PersistentPV {
