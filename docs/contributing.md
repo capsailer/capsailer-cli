@@ -78,4 +78,4 @@ Feature requests are welcome. Please provide:
 
 ## License
 
-By contributing to Capsailer, you agree that your contributions will be licensed under the project's [MIT License](https://github.com/capsailer/capsailer-cli/blob/main/LICENSE). 
+By contributing to Capsailer, you agree that your contributions will be licensed under the project's [Apache License 2.0](https://github.com/capsailer/capsailer-cli/blob/main/LICENSE). 
