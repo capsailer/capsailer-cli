@@ -7,34 +7,37 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/capsailer/capsailer-cli/pkg/helm"
+	"github.com/capsailer/capsailer-cli/pkg/utils"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
-	"github.com/capsailer/capsailer-cli/pkg/helm"
-	"github.com/capsailer/capsailer-cli/pkg/utils"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
 )
 
 // BuildOptions defines options for the build process
 type BuildOptions struct {
-	ManifestPath          string
-	OutputPath            string
-	Parallel              int
+	ManifestPath           string
+	OutputPath             string
+	Parallel               int
 	RewriteImageReferences bool
-	RegistryURL           string
+	RegistryURL            string
 }
 
 // Builder handles the build process
 type Builder struct {
 	options BuildOptions
+	tracker *utils.ProgressTracker
 }
 
 // NewBuilder creates a new Builder with the given options
 func NewBuilder(options BuildOptions) *Builder {
 	return &Builder{
 		options: options,
+		tracker: utils.NewProgressTracker(),
 	}
 }
 
@@ -110,7 +113,7 @@ func (b *Builder) Build() error {
 
 	// Create bundle
 	fmt.Println("Creating bundle...")
-	if err := utils.CreateTarGz(tempDir, b.options.OutputPath); err != nil {
+	if err := utils.CreateTarGz(tempDir, b.options.OutputPath, b.tracker); err != nil {
 		return fmt.Errorf("failed to create bundle: %w", err)
 	}
 
@@ -138,6 +141,7 @@ func (b *Builder) downloadImages(images []string, outputDir string) error {
 		}(image)
 	}
 
+	// Wait for all downloads to complete
 	wg.Wait()
 	close(errChan)
 
@@ -147,13 +151,14 @@ func (b *Builder) downloadImages(images []string, outputDir string) error {
 		return err
 	}
 
+	// Add a small delay to ensure all progress bars are properly rendered
+	time.Sleep(100 * time.Millisecond)
+
 	return nil
 }
 
 // downloadImage downloads a single container image using go-containerregistry
 func (b *Builder) downloadImage(image, outputDir string) error {
-	fmt.Printf("Downloading image: %s\n", image)
-
 	// Parse the image reference
 	ref, err := name.ParseReference(image)
 	if err != nil {
@@ -166,25 +171,45 @@ func (b *Builder) downloadImage(image, outputDir string) error {
 		return fmt.Errorf("failed to pull image: %w", err)
 	}
 
+	// Get image size
+	size, err := img.Size()
+	if err != nil {
+		return fmt.Errorf("failed to get image size: %w", err)
+	}
+
 	// Create a filename-safe version of the image name
 	safeImageName := strings.ReplaceAll(image, "/", "_")
 	safeImageName = strings.ReplaceAll(safeImageName, ":", "_")
 	outputPath := filepath.Join(outputDir, safeImageName+".tar")
 
+	// Add progress bar
+	b.tracker.AddProgressBar(image, size)
+
+	// Create output file
+	outputFile, err := os.Create(outputPath)
+	if err != nil {
+		return fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer outputFile.Close()
+
 	// Save the image as a tarball
 	if err := tarball.WriteToFile(outputPath, ref, img); err != nil {
+		b.tracker.Finish(image) // Ensure we clean up the progress bar on error
 		return fmt.Errorf("failed to save image: %w", err)
 	}
 
-	fmt.Printf("Saved image: %s\n", outputPath)
+	// Update progress to 100%
+	b.tracker.Increment(image, size)
+
+	// Mark progress as complete
+	b.tracker.Finish(image)
+
 	return nil
 }
 
 // downloadCharts downloads Helm charts
 func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 	for _, chart := range charts {
-		fmt.Printf("Downloading chart: %s (version %s)\n", chart.Name, chart.Version)
-
 		// Create a chart repository
 		repoURL := chart.Repo
 		repoName := fmt.Sprintf("capsailer-%s", chart.Name)
@@ -238,6 +263,10 @@ func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 			chartURL = strings.TrimSuffix(repoURL, "/") + "/" + strings.TrimPrefix(chartURL, "/")
 		}
 
+		// Add progress bar
+		chartName := fmt.Sprintf("%s-%s", chart.Name, chart.Version)
+		b.tracker.AddProgressBar(chartName, 100) // We'll update this in chunks
+
 		// Set up HTTP getter
 		getters := getter.Providers{
 			getter.Provider{
@@ -246,29 +275,32 @@ func (b *Builder) downloadCharts(charts []utils.Chart, outputDir string) error {
 			},
 		}
 
-		// Download the chart
-		chartFileName := fmt.Sprintf("%s-%s.tgz", chart.Name, chart.Version)
-		chartPath := filepath.Join(outputDir, chartFileName)
-
-		fmt.Printf("Downloading chart from %s to %s\n", chartURL, chartPath)
-
-		// Get an HTTP client and download the chart
+		// Get an HTTP client
 		httpGetter, err := getters.ByScheme("https")
 		if err != nil {
 			return fmt.Errorf("failed to get HTTP getter: %w", err)
 		}
 
+		// Download the chart
+		chartFileName := fmt.Sprintf("%s-%s.tgz", chart.Name, chart.Version)
+		outputPath := filepath.Join(outputDir, chartFileName)
+
+		// Download the chart data
 		data, err := httpGetter.Get(chartURL)
 		if err != nil {
 			return fmt.Errorf("failed to download chart: %w", err)
 		}
 
 		// Write chart data to file
-		if err := os.WriteFile(chartPath, data.Bytes(), 0644); err != nil {
+		if err := os.WriteFile(outputPath, data.Bytes(), 0644); err != nil {
 			return fmt.Errorf("failed to write chart file: %w", err)
 		}
 
-		fmt.Printf("Saved chart: %s\n", chartPath)
+		// Update progress to 100%
+		b.tracker.Increment(chartName, 100)
+
+		// Mark progress as complete
+		b.tracker.Finish(chartName)
 	}
 
 	return nil
@@ -339,7 +371,7 @@ func (b *Builder) copyValuesFiles(charts []utils.Chart, outputDir string) error 
 func (b *Builder) rewriteImageReferencesInCharts(charts []utils.Chart, chartsDir string) error {
 	for _, chart := range charts {
 		fmt.Printf("Rewriting image references in chart: %s\n", chart.Name)
-		
+
 		// Find the chart file
 		chartPath := filepath.Join(chartsDir, fmt.Sprintf("%s-%s.tgz", chart.Name, chart.Version))
 		if _, err := os.Stat(chartPath); os.IsNotExist(err) {
@@ -351,12 +383,12 @@ func (b *Builder) rewriteImageReferencesInCharts(charts []utils.Chart, chartsDir
 			}
 			chartPath = matches[0]
 		}
-		
+
 		// Rewrite image references
 		if err := helm.RewriteImageReferences(chartPath, b.options.RegistryURL); err != nil {
 			return fmt.Errorf("failed to rewrite image references in chart %s: %w", chart.Name, err)
 		}
 	}
-	
+
 	return nil
 }

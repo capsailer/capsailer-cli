@@ -10,7 +10,25 @@ import (
 )
 
 // CreateTarGz creates a tar.gz archive from a source directory
-func CreateTarGz(sourceDir, outputPath string) error {
+func CreateTarGz(sourceDir, outputPath string, tracker *ProgressTracker) error {
+	// Calculate total size first
+	var totalSize int64
+	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			totalSize += info.Size()
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to calculate total size: %w", err)
+	}
+
+	// Add progress bar
+	tracker.AddProgressBar("Creating bundle", totalSize)
+
 	// Create output file
 	file, err := os.Create(outputPath)
 	if err != nil {
@@ -39,7 +57,7 @@ func CreateTarGz(sourceDir, outputPath string) error {
 	}()
 
 	// Walk through the source directory
-	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -74,11 +92,23 @@ func CreateTarGz(sourceDir, outputPath string) error {
 				}
 			}()
 
-			if _, err := io.Copy(tw, file); err != nil {
+			// Create a progress writer
+			progressWriter := NewProgressWriter(tw, tracker, "Creating bundle")
+
+			if _, err := io.Copy(progressWriter, file); err != nil {
 				return fmt.Errorf("failed to write file to tar: %w", err)
 			}
 		}
 
 		return nil
 	})
+
+	if err != nil {
+		return fmt.Errorf("failed to create archive: %w", err)
+	}
+
+	// Mark progress as complete
+	tracker.Finish("Creating bundle")
+
+	return nil
 }
