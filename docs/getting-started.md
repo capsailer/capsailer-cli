@@ -9,31 +9,31 @@ This guide will help you get started with Capsailer for air-gapped Kubernetes de
 
 ## Installation
 
-### Download Pre-built Binary
+### Download Prse-built Binary
 
 You can download pre-built binaries for your platform:
 
 #### Linux (amd64)
 
 ```bash
-curl -Lo capsailer https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-linux-amd64.tar.gz
-tar -xzf capsailer-linux-amd64.tar.gz
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-linux-amd64.tar.gz
+tar -xzf capsailer.tar.gz
 chmod +x capsailer
 ```
 
 #### macOS (Intel)
 
 ```bash
-curl -Lo capsailer https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-amd64.tar.gz
-tar -xzf capsailer-darwin-amd64.tar.gz
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-amd64.tar.gz
+tar -xzf capsailer.tar.gz
 chmod +x capsailer
 ```
 
 #### macOS (Apple Silicon)
 
 ```bash
-curl -Lo capsailer https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-arm64.tar.gz
-tar -xzf capsailer-darwin-arm64.tar.gz
+curl -Lo capsailer.tar.gz https://github.com/capsailer/capsailer-cli/releases/latest/download/capsailer-darwin-arm64.tar.gz
+tar -xzf capsailer.tar.gz
 chmod +x capsailer
 ```
 
