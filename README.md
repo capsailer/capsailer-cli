@@ -3,7 +3,7 @@
 Capsailer is a CLI tool for delivering Kubernetes applications into air-gapped (offline) environments.
 
 [![Documentation](https://img.shields.io/badge/docs-capsailer.dev-blue)](https://docs.capsailer.dev/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
 ## Overview
 
@@ -114,4 +114,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details. 
