@@ -2,72 +2,72 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/contributing/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/examples/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/getting-started/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/commands/build/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/commands/init/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/commands/overview/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/commands/push/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/commands/registry/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/commands/unpack/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/user-guide/air-gapped-deployment/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/user-guide/building-bundles/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/user-guide/creating-manifests/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://capsailer.github.io/capsailer-cli/user-guide/installation/</loc>
-         <lastmod>2025-05-15</lastmod>
+         <lastmod>2025-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
