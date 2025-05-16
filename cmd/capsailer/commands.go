@@ -23,8 +23,8 @@ import (
 )
 
 // runRegistry handles the registry command
-func runRegistry(namespace, image string, persistent bool, kubeconfigPath string) error {
-	fmt.Println("Deploying a standalone Docker registry")
+func runRegistry(namespace, image, chartImage string, persistent bool, kubeconfigPath string) error {
+	fmt.Println("Deploying a standalone Docker registry and ChartMuseum")
 
 	// Air-gapped environment handling
 	fmt.Println("\nAir-gapped environment detection:")
@@ -68,16 +68,20 @@ func runRegistry(namespace, image string, persistent bool, kubeconfigPath string
 			}
 		}
 	} else {
-		fmt.Println("Connected environment detected. Registry image will be pulled from Docker Hub.")
+		fmt.Println("Connected environment detected. Registry and ChartMuseum images will be pulled from their respective registries.")
 	}
 
 	// Create registry options
-	opts := registry.RegistryOptions{
-		Namespace:      namespace,
-		RegistryImage:  image,
-		PersistentPV:   persistent,
-		KubeconfigPath: kubeconfigPath,
+	opts := registry.DefaultRegistryOptions()
+	opts.Namespace = namespace
+	if image != "" {
+		opts.RegistryImage = image
 	}
+	if chartImage != "" {
+		opts.ChartMuseumImage = chartImage
+	}
+	opts.PersistentPV = persistent
+	opts.KubeconfigPath = kubeconfigPath
 
 	// Setup the registry
 	registryURL, err := registry.SetupRegistry(opts)
@@ -85,11 +89,13 @@ func runRegistry(namespace, image string, persistent bool, kubeconfigPath string
 		return fmt.Errorf("failed to setup registry: %w", err)
 	}
 
-	fmt.Printf("Registry deployed successfully at: %s\n", registryURL)
+	fmt.Printf("\nRegistry deployed successfully at: %s\n", registryURL)
+	fmt.Printf("ChartMuseum deployed successfully at: chartmuseum.%s.svc.cluster.local:8080\n", namespace)
 	fmt.Println("\nYou can use this registry for your air-gapped deployments.")
 	fmt.Println("To push images to this registry:")
 	fmt.Printf("  docker tag myimage:tag %s/myimage:tag\n", registryURL)
 	fmt.Printf("  docker push %s/myimage:tag\n", registryURL)
+	fmt.Println("\nTo push Helm charts, use the 'capsailer push' command with your bundle.")
 
 	return nil
 }
@@ -927,38 +933,24 @@ func init() {
 	// Initialize registry command
 	registryCmd := &cobra.Command{
 		Use:   "registry",
-		Short: "Deploy a standalone Docker registry in a Kubernetes cluster",
-		Long: `Deploy a standalone Docker registry in a Kubernetes cluster.
-This command sets up a Docker registry that can be used for air-gapped 
-Kubernetes deployments.`,
+		Short: "Deploy a standalone Docker registry and ChartMuseum",
+		Long: `Deploy a standalone Docker registry and ChartMuseum in your Kubernetes cluster.
+This registry can be used for air-gapped deployments.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Get flag values
 			namespace, _ := cmd.Flags().GetString("namespace")
 			image, _ := cmd.Flags().GetString("image")
+			chartImage, _ := cmd.Flags().GetString("chartmuseum-image")
 			persistent, _ := cmd.Flags().GetBool("persistent")
 			kubeconfigPath, _ := cmd.Flags().GetString("kubeconfig")
-			localBuild, _ := cmd.Flags().GetBool("local-build")
-
-			// If local-build is specified, build a local registry image
-			if localBuild {
-				fmt.Println("Building a local registry image for air-gapped deployment...")
-				if err := buildLocalRegistryImage(); err != nil {
-					return fmt.Errorf("failed to build local registry image: %w", err)
-				}
-				// Update the image path to use the local image
-				image = "localhost:5000/registry:local"
-			}
-
-			return runRegistry(namespace, image, persistent, kubeconfigPath)
+			return runRegistry(namespace, image, chartImage, persistent, kubeconfigPath)
 		},
 	}
 
-	// Add flags to registry command
 	registryCmd.Flags().String("namespace", "capsailer-registry", "Kubernetes namespace for the registry")
 	registryCmd.Flags().String("image", "registry:2", "Container image for the registry")
+	registryCmd.Flags().String("chartmuseum-image", "", "Container image for ChartMuseum (default: ghcr.io/helm/chartmuseum:v0.15.0)")
 	registryCmd.Flags().Bool("persistent", true, "Use persistent storage for the registry")
 	registryCmd.Flags().String("kubeconfig", "", "Path to kubeconfig file")
-	registryCmd.Flags().Bool("local-build", false, "Build a local registry image for air-gapped deployment")
 
 	// Initialize push command
 	pushCmd := &cobra.Command{
