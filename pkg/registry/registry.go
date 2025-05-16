@@ -11,6 +11,7 @@ import (
 type RegistryOptions struct {
 	Namespace      string
 	RegistryImage  string
+	ChartMuseumImage string
 	PersistentPV   bool
 	KubeconfigPath string
 }
@@ -18,16 +19,17 @@ type RegistryOptions struct {
 // DefaultRegistryOptions returns default registry options
 func DefaultRegistryOptions() RegistryOptions {
 	return RegistryOptions{
-		Namespace:      "capsailer-registry",
-		RegistryImage:  "registry:2",
-		PersistentPV:   true,
-		KubeconfigPath: "",
+		Namespace:        "capsailer-registry",
+		RegistryImage:    "registry:2",
+		ChartMuseumImage: "ghcr.io/helm/chartmuseum:v0.15.0",
+		PersistentPV:     true,
+		KubeconfigPath:   "",
 	}
 }
 
-// SetupRegistry sets up a Docker registry in a Kubernetes cluster
+// SetupRegistry sets up a Docker registry and ChartMuseum in a Kubernetes cluster
 func SetupRegistry(opts RegistryOptions) (string, error) {
-	// Create YAML file for the registry
+	// Create YAML file for the registry and ChartMuseum
 	manifestPath, err := createRegistryManifest(opts)
 	if err != nil {
 		return "", fmt.Errorf("failed to create registry manifest: %w", err)
@@ -39,7 +41,7 @@ func SetupRegistry(opts RegistryOptions) (string, error) {
 		kubectlArgs = append(kubectlArgs, "--kubeconfig", opts.KubeconfigPath)
 	}
 
-	fmt.Println("Deploying registry to Kubernetes cluster...")
+	fmt.Println("Deploying registry and ChartMuseum to Kubernetes cluster...")
 	cmd := exec.Command("kubectl", kubectlArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -61,12 +63,26 @@ func SetupRegistry(opts RegistryOptions) (string, error) {
 		return "", fmt.Errorf("failed waiting for registry: %w", err)
 	}
 
+	// Wait for ChartMuseum to be ready
+	fmt.Println("Waiting for ChartMuseum deployment to be ready...")
+	waitChartArgs := []string{"rollout", "status", "deployment/chartmuseum", "-n", opts.Namespace}
+	if opts.KubeconfigPath != "" {
+		waitChartArgs = append(waitChartArgs, "--kubeconfig", opts.KubeconfigPath)
+	}
+
+	waitChartCmd := exec.Command("kubectl", waitChartArgs...)
+	waitChartCmd.Stdout = os.Stdout
+	waitChartCmd.Stderr = os.Stderr
+	if err := waitChartCmd.Run(); err != nil {
+		return "", fmt.Errorf("failed waiting for ChartMuseum: %w", err)
+	}
+
 	// Return the registry URL
 	registryURL := fmt.Sprintf("registry.%s.svc.cluster.local:5000", opts.Namespace)
 	return registryURL, nil
 }
 
-// createRegistryManifest creates a YAML manifest for the registry
+// createRegistryManifest creates a YAML manifest for the registry and ChartMuseum
 func createRegistryManifest(opts RegistryOptions) (string, error) {
 	// Create a temporary file for the manifest
 	manifestPath := filepath.Join(os.TempDir(), "capsailer-registry.yaml")
@@ -74,6 +90,9 @@ func createRegistryManifest(opts RegistryOptions) (string, error) {
 	// Define the manifest content
 	var volumeSection string
 	var volumeMountSection string
+	var chartVolumeSection string
+	var chartVolumeMountSection string
+	
 	if opts.PersistentPV {
 		volumeSection = fmt.Sprintf(`
 ---
@@ -88,17 +107,39 @@ spec:
   resources:
     requests:
       storage: 10Gi
-`, opts.Namespace)
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chartmuseum-data
+  namespace: %s
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+`, opts.Namespace, opts.Namespace)
 
 		volumeMountSection = `
       volumes:
         - name: registry-data
           persistentVolumeClaim:
             claimName: registry-data`
+            
+		chartVolumeMountSection = `
+      volumes:
+        - name: chartmuseum-data
+          persistentVolumeClaim:
+            claimName: chartmuseum-data`
 	} else {
 		volumeMountSection = `
       volumes:
         - name: registry-data
+          emptyDir: {}`
+		chartVolumeMountSection = `
+      volumes:
+        - name: chartmuseum-data
           emptyDir: {}`
 	}
 
@@ -147,7 +188,55 @@ spec:
     - port: 5000
       targetPort: 5000
   type: ClusterIP
-`, opts.Namespace, volumeSection, opts.Namespace, opts.RegistryImage, volumeMountSection, opts.Namespace)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chartmuseum
+  namespace: %s
+spec:
+  selector:
+    matchLabels:
+      app: chartmuseum
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: chartmuseum
+    spec:
+      containers:
+        - name: chartmuseum
+          image: %s
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: chartmuseum-data
+              mountPath: /storage
+          env:
+            - name: DEBUG
+              value: "false"
+            - name: STORAGE
+              value: "local"
+            - name: STORAGE_LOCAL_ROOTDIR
+              value: "/storage"
+            - name: ALLOW_OVERWRITE
+              value: "true"
+            - name: DISABLE_API
+              value: "false"%s
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chartmuseum
+  namespace: %s
+spec:
+  selector:
+    app: chartmuseum
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
+`, opts.Namespace, volumeSection, opts.Namespace, opts.RegistryImage, volumeMountSection, opts.Namespace, opts.Namespace, opts.ChartMuseumImage, chartVolumeMountSection, opts.Namespace)
 
 	// Write the manifest to the file
 	if err := os.WriteFile(manifestPath, []byte(manifest), 0644); err != nil {
